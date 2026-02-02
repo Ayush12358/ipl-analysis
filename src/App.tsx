@@ -152,7 +152,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <p className="text-[10px] text-slate-500">Master Analyst</p>
                 <span className="w-1 h-1 rounded-full bg-slate-700"></span>
-                <p className="text-[10px] text-primary/70 font-mono">v0.1.2</p>
+                <p className="text-[10px] text-primary/70 font-mono">v0.1.3</p>
               </div>
             </div>
           </div>
@@ -362,10 +362,20 @@ export default function App() {
                           {/* Full Report Area */}
                           <Card className="bg-white/5 border-white/5 overflow-hidden">
                             <CardHeader className="bg-white/5 flex flex-row items-center justify-between">
-                              <CardTitle className="text-lg flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-yellow-500" />
-                                Comprehensive Analysis Report
-                              </CardTitle>
+                              <div className="flex flex-col gap-1">
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                  <Zap className="w-4 h-4 text-yellow-500" />
+                                  Comprehensive Analysis Report
+                                </CardTitle>
+                                {agentResult.evaluation && (
+                                  <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider ${agentResult.evaluation.isAdequate ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                    <Badge variant="outline" className={`${agentResult.evaluation.isAdequate ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-amber-500/30 bg-amber-500/10'} px-2 py-0 h-4`}>
+                                      {agentResult.evaluation.isAdequate ? 'Quality Gate: Passed' : 'Quality Gate: Warning'}
+                                    </Badge>
+                                    <span className="opacity-60 line-clamp-1 font-medium italic lowercase first-letter:uppercase">{agentResult.evaluation.feedback}</span>
+                                  </div>
+                                )}
+                              </div>
                               <Button variant="ghost" size="sm" onClick={exportToPDF} className="text-slate-400 hover:text-white">
                                 <Download className="w-4 h-4 mr-2" />
                                 Export PDF
@@ -441,7 +451,7 @@ export default function App() {
                                   </div>
                                   <div className="bg-black/40 rounded-xl p-3 border border-white/5 font-mono text-[10px]">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="text-emerald-500 opacity-70">EXECUTE PYTHON:</span>
+                                      <span className="text-emerald-500 opacity-70">{turn.action === 'SYNTHESIS' ? 'FINAL SYNTHESIS:' : 'EXECUTE PYTHON:'}</span>
                                       <Terminal size={10} className="text-slate-600" />
                                     </div>
                                     <pre className="text-emerald-400 overflow-x-auto custom-scrollbar">{turn.code}</pre>

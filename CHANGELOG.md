@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2026-02-03
+
+### Features
+- **Four-Stage Reasoning Pipeline**: Implemented a sophisticated Discovery -> Synthesis -> Strategy -> Evaluation workflow.
+- **Synthesis Turn**: A mandatory final data-gathering turn that consolidates discovery turns into a structured dataset.
+- **Evaluation Gate**: An independent agent that audits the final report for adequacy and quality, displaying results directly in the UI.
+
 ## [0.1.2] - 2026-02-03
 
 ### Features

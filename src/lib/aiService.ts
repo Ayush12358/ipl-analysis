@@ -60,8 +60,46 @@ export async function generateAnalystCode(query: string, history: any[], userKey
       thought: "Parsing failed, attempting fallback execution",
       action: "EXECUTE_PYTHON",
       code: text.replace(/```python/g, "").replace(/```/g, "").trim()
-    };
+    }
   }
+}
+
+// --- SYNTHESIS AGENT: The Data Consolidator ---
+export async function generateSynthesisCode(query: string, history: any[], userKey?: string): Promise<any> {
+  const model = getModel(userKey);
+
+  const historyContext = history.map(h => `
+  Thought: ${h.thought}
+  Action: ${h.action}
+  Observation: ${h.observation}
+  `).join("\n");
+
+  const systemPrompt = `You are the "Chief Synthesis Analyst".
+  You have just completed a multi-step discovery phase. 
+
+  YOUR TASK:
+  Based on the discovery history, write one FINAL Python script to extract and structure the precise data needed for the Strategy Report.
+  Focus on creating a 'result' dictionary that resolves the core user query with hard evidence.
+
+  AVAILABLE DATA: [matches, deliveries]
+  
+  HISTORY:
+  ${historyContext}
+
+  USER QUERY: ${query}
+
+  Output JSON:
+  {
+    "thought": "Based on the identified outliers in Turn 2, I will now aggregate their specific strike rates...",
+    "action": "EXECUTE_PYTHON",
+    "code": "..."
+  }
+  `;
+
+  const result = await model.generateContent(systemPrompt);
+  const text = result.response.text();
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  return JSON.parse(jsonMatch ? jsonMatch[0] : text);
 }
 
 // --- STRATEGIST AGENT: The Insight Specialist ---
@@ -90,6 +128,39 @@ export async function generateStrategistReport(query: string, history: any[], fi
   {
     "executiveSummary": "...",
     "detailedAnalysis": "..."
+  }
+  `;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  return JSON.parse(jsonMatch ? jsonMatch[0] : text);
+}
+
+// --- EVALUATOR AGENT: The Quality Controller ---
+export async function evaluateResponseAdequacy(query: string, history: any[], finalReport: any, userKey?: string): Promise<any> {
+  const model = getModel(userKey);
+
+  const prompt = `You are the "Analytical Auditor".
+  Your job is to determine if the AI team has adequately answered the User's query.
+
+  USER QUERY: ${query}
+  
+  INVESTIGATION HISTORY:
+  ${JSON.stringify(history)}
+
+  FINAL STRATEGIC REPORT:
+  ${JSON.stringify(finalReport)}
+
+  YOUR TASK:
+  Judge if the report is:
+  1. "isAdequate": boolean (true if the query is directy and fully answered).
+  2. "feedback": string (If true, a short praise. If false, specify exactly what is missing).
+
+  Output JSON:
+  {
+    "isAdequate": true/false,
+    "feedback": "..."
   }
   `;
 

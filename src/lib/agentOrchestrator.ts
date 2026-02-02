@@ -1,4 +1,4 @@
-import { generateAnalystCode, generateStrategistReport } from './aiService';
+import { generateAnalystCode, generateStrategistReport, generateSynthesisCode, evaluateResponseAdequacy } from './aiService';
 import { executePython } from './pyodideExecutor';
 
 export interface AgentTurn {
@@ -14,6 +14,10 @@ export interface AgentResult {
     executiveSummary: string;
     detailedAnalysis: string;
     finalResult: any;
+    evaluation?: {
+        isAdequate: boolean;
+        feedback: string;
+    };
 }
 
 export async function runAgentDeepAnalysis(
@@ -69,13 +73,41 @@ export async function runAgentDeepAnalysis(
         }
     }
 
-    // 3. Strategist Agent: Generate Report
+    // --- STAGE 2: Synthesis Turn (Consolidate discovery into final data) ---
+    if (history.length > 0) {
+        const synthesisResponse = await generateSynthesisCode(query, history, userApiKey);
+        if (synthesisResponse.code) {
+            const turn: AgentTurn = {
+                thought: synthesisResponse.thought,
+                action: 'SYNTHESIS',
+                code: synthesisResponse.code,
+                observation: ''
+            };
+            try {
+                const result = await executePython(synthesisResponse.code, database);
+                turn.observation = "Synthesis Success: Ready for Strategist.";
+                currentResult = result;
+                history.push(turn);
+                onUpdate([...history]);
+            } catch (err: any) {
+                turn.observation = "Synthesis Error: " + err.message;
+                history.push(turn);
+                onUpdate([...history]);
+            }
+        }
+    }
+
+    // --- STAGE 3: Strategist Agent (Generate Report) ---
     const reports = await generateStrategistReport(query, history, currentResult, userApiKey);
+
+    // --- STAGE 4: Evaluator Agent (Quality Control) ---
+    const evaluation = await evaluateResponseAdequacy(query, history, reports, userApiKey);
 
     return {
         turns: history,
         executiveSummary: reports.executiveSummary,
         detailedAnalysis: reports.detailedAnalysis,
-        finalResult: currentResult
+        finalResult: currentResult,
+        evaluation: evaluation
     };
 }

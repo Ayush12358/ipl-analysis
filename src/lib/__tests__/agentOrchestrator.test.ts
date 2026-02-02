@@ -6,7 +6,9 @@ import * as pyodideExecutor from "../../lib/pyodideExecutor";
 // Mock dependencies
 mock.module("../../lib/aiService", () => ({
     generateAnalystCode: mock(),
-    generateStrategistReport: mock()
+    generateStrategistReport: mock(),
+    generateSynthesisCode: mock(),
+    evaluateResponseAdequacy: mock()
 }));
 
 mock.module("../../lib/pyodideExecutor", () => ({
@@ -15,7 +17,11 @@ mock.module("../../lib/pyodideExecutor", () => ({
 
 describe("agentOrchestrator", () => {
     beforeEach(() => {
-        mock.restore();
+        (aiService.generateAnalystCode as any).mockClear();
+        (aiService.generateStrategistReport as any).mockClear();
+        (aiService.generateSynthesisCode as any).mockClear();
+        (aiService.evaluateResponseAdequacy as any).mockClear();
+        (pyodideExecutor.executePython as any).mockClear();
     });
 
     it("should run a full successful loop (Analyst -> Python -> Strategist)", async () => {
@@ -28,6 +34,8 @@ describe("agentOrchestrator", () => {
         const generateAnalystCode = aiService.generateAnalystCode as unknown as ReturnType<typeof mock>;
         const executePython = pyodideExecutor.executePython as unknown as ReturnType<typeof mock>;
         const generateStrategistReport = aiService.generateStrategistReport as unknown as ReturnType<typeof mock>;
+        const generateSynthesisCode = aiService.generateSynthesisCode as unknown as ReturnType<typeof mock>;
+        const evaluateResponseAdequacy = aiService.evaluateResponseAdequacy as unknown as ReturnType<typeof mock>;
 
         // 1. Analyst generates code
         generateAnalystCode.mockResolvedValueOnce({
@@ -54,6 +62,17 @@ describe("agentOrchestrator", () => {
             detailedAnalysis: "Detailed result."
         });
 
+        // 4. Synthesis and Evaluation
+        generateSynthesisCode.mockResolvedValue({
+            thought: "Synthesizing...",
+            action: "EXECUTE_PYTHON",
+            code: "print('synthesis')"
+        });
+        evaluateResponseAdequacy.mockResolvedValue({
+            isAdequate: true,
+            feedback: "Perfect."
+        });
+
         // RUN
         const database = {};
         const onUpdate = mock();
@@ -61,8 +80,11 @@ describe("agentOrchestrator", () => {
 
         // ASSERTIONS
         expect(result.executiveSummary).toBe("Good result.");
+        expect(result.evaluation?.isAdequate).toBe(true);
         expect(generateAnalystCode).toHaveBeenCalled();
         expect(executePython).toHaveBeenCalledWith("print('hello')", database);
+        expect(generateSynthesisCode).toHaveBeenCalled();
+        expect(evaluateResponseAdequacy).toHaveBeenCalled();
         expect(generateStrategistReport).toHaveBeenCalled();
         expect(onUpdate).toHaveBeenCalled();
     });
@@ -81,10 +103,15 @@ describe("agentOrchestrator", () => {
 
         // Mock Strategist to return something at the end
         const generateStrategistReport = aiService.generateStrategistReport as unknown as ReturnType<typeof mock>;
+        const generateSynthesisCode = aiService.generateSynthesisCode as unknown as ReturnType<typeof mock>;
+        const evaluateResponseAdequacy = aiService.evaluateResponseAdequacy as unknown as ReturnType<typeof mock>;
+
         generateStrategistReport.mockResolvedValue({
             executiveSummary: "Forced End",
             detailedAnalysis: "..."
         });
+        generateSynthesisCode.mockResolvedValue({ code: "pass" });
+        evaluateResponseAdequacy.mockResolvedValue({ isAdequate: false, feedback: "Stop" });
 
         await runAgentDeepAnalysis("Loop", {}, () => { });
 
