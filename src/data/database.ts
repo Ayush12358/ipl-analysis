@@ -15,6 +15,7 @@ export const generateDeliveries = (): Delivery[] => {
             // Generate a more structured set of players per match
             const lineup = starBatsmen.concat(Array.from({ length: 5 }, (_, i) => `Player ${i + 7}`));
 
+
             for (let over = 1; over <= 20; over++) {
                 // Determine current batsman based on over (simplification)
                 const currentBatsman = lineup[Math.floor(over / 4)];
@@ -36,7 +37,7 @@ export const generateDeliveries = (): Delivery[] => {
 
                     deliveries.push({
                         match_id: match.id,
-                        inning: innings,
+                        innings: innings, // Updated key
                         batting_team: battingTeam,
                         bowling_team: bowlingTeam,
                         over,
@@ -44,10 +45,11 @@ export const generateDeliveries = (): Delivery[] => {
                         batter: currentBatsman,
                         bowler: currentBowler,
                         non_striker: "Non Striker",
-                        batter_runs: runs,
-                        extra_runs: 0,
-                        total_runs: runs,
-                        wicket_label: Math.random() < 0.04 ? "out" : ""
+                        runs_batter: runs,  // Updated key
+                        runs_extras: 0,     // Updated key
+                        runs_total: runs,   // Updated key
+                        wicket_kind: Math.random() < 0.04 ? "out" : "", // Updated key & value
+                        player_out: "" // Added default
                     });
                 }
             }

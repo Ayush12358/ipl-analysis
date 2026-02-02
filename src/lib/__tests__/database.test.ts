@@ -16,8 +16,8 @@ describe("database", () => {
 
     it("switchToRealData should update userDatabase on success", async () => {
         const mockData = {
-            matches: [{ id: 999, season: 2025 }],
-            deliveries: [{ match_id: 999, batter: "Dhoni" }]
+            matches: [{ id: 1, season: 2024, team1: "CSK", team2: "MI", toss_winner: "CSK", toss_decision: "bat", player_of_match: "Dhoni" }],
+            deliveries: [{ match_id: 1, runs_batter: 6, runs_total: 6 }]
         };
 
         // Setup mock return

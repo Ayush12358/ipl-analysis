@@ -1,4 +1,4 @@
-import { describe, it, expect, mock } from "bun:test";
+import { describe, it, expect, mock, afterEach } from "bun:test";
 
 // Mock GoogleGenerativeAI
 const mockGenerateContent = mock();

@@ -81,6 +81,25 @@ describe("processIPLData", () => {
         // Data
         const delivery = result.deliveries[0];
         expect(delivery.batter).toBe("Ruturaj");
-        expect(delivery.total_runs).toBe(4);
+        expect(delivery.runs_total).toBe(4); // Updated key
+    });
+
+    it("should derive season from date if missing", () => {
+        const { processIPLData } = require("../dataLoader");
+
+        const sampleRawParams = [
+            {
+                match_id: 102,
+                // season intentionally missing
+                city: "Mumbai", date: "2023-04-01",
+                batting_team: "MI", bowling_team: "RCB", toss_winner: "MI", toss_decision: "field",
+                result_type: "wickets", match_won_by: "RCB", venue: "Wankhede", player_of_match: "Faf",
+                inning: 1, over: 0, ball: 1, batter: "Faf", bowler: "Archer",
+                batsman_runs: 6, extra_runs: 0, total_runs: 6
+            }
+        ];
+
+        const result = processIPLData(sampleRawParams);
+        expect(result.matches[0].season).toBe(2023);
     });
 });

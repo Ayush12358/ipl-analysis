@@ -7,17 +7,17 @@ export interface Match {
     date: string;
     team1: string;
     team2: string;
-    tossWinner: string;
-    tossDecision: string;
+    toss_winner: string;
+    toss_decision: string;
     result: string;
     winner: string;
     venue: string;
-    playerOfMatch: string;
+    player_of_match: string;
 }
 
 export interface Delivery {
     match_id: number;
-    inning: number;
+    innings: number; // Changed from inning to innings
     batting_team: string;
     bowling_team: string;
     over: number;
@@ -25,10 +25,11 @@ export interface Delivery {
     batter: string;
     bowler: string;
     non_striker: string;
-    batter_runs: number;
-    extra_runs: number;
-    total_runs: number;
-    wicket_label: string;
+    runs_batter: number; // Changed from batter_runs
+    runs_extras: number; // Changed from extra_runs
+    runs_total: number;  // Changed from total_runs
+    wicket_kind: string; // Changed from wicket_label
+    player_out: string;  // Added for completeness
 }
 
 export interface IPLData {
@@ -76,28 +77,34 @@ export function processIPLData(data: any[]): IPLData {
     const deliveries: Delivery[] = [];
 
     data.forEach((row: any) => {
+        // Derive season from date if missing (fix for KeyError: season)
+        let season = row.season;
+        if (!season && row.date) {
+            season = new Date(row.date).getFullYear();
+        }
+
         // 1. Parse Match
         if (!matchesMap.has(row.match_id)) {
             matchesMap.set(row.match_id, {
                 id: row.match_id,
-                season: row.season,
+                season: season,
                 city: row.city,
                 date: row.date,
-                team1: row.batting_team, // In unified CSV, assuming first innings rep
+                team1: row.batting_team,
                 team2: row.bowling_team,
-                tossWinner: row.toss_winner,
-                tossDecision: row.toss_decision,
-                result: row.result_type || row.result, // Handle variation
+                toss_winner: row.toss_winner,
+                toss_decision: row.toss_decision,
+                result: row.result_type || row.result,
                 winner: row.match_won_by || row.winner,
                 venue: row.venue,
-                playerOfMatch: row.player_of_match
+                player_of_match: row.player_of_match
             });
         }
 
         // 2. Parse Delivery
         deliveries.push({
             match_id: row.match_id,
-            inning: row.inning || 1, // Default if missing
+            innings: row.inning || 1,
             batting_team: row.batting_team,
             bowling_team: row.bowling_team,
             over: row.over,
@@ -105,10 +112,11 @@ export function processIPLData(data: any[]): IPLData {
             batter: row.batter,
             bowler: row.bowler,
             non_striker: row.non_striker,
-            batter_runs: row.batsman_runs,
-            extra_runs: row.extra_runs,
-            total_runs: row.total_runs,
-            wicket_label: row.is_wicket ? "wicket" : "" // Simplified
+            runs_batter: row.batsman_runs,
+            runs_extras: row.extra_runs,
+            runs_total: row.total_runs,
+            wicket_kind: row.is_wicket ? "out" : "",
+            player_out: row.player_dismissed || ""
         });
     });
 

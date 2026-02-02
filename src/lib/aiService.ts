@@ -23,7 +23,13 @@ export async function generateAnalystCode(query: string, history: any[], userKey
   Your ONLY job is to write precise, error-free Python code using Pandas, NumPy, and Scikit-learn to answer the user's query.
 
   AVAILABLE DATA:
-  - 'matches' DataFrame (df_matches): [id, season, city, date, team1, team2, toss_winner, toss_decision, result, winner, win_by_runs, win_by_wickets, player_of_match, venue]
+  - 'matches' DataFrame (df_matches):
+    - id: int (unique match identifier)
+    - season: int (e.g., 2024, derived from date if missing)
+    - date: string (YYYY-MM-DD)
+    - team1, team2: string (names of the competing teams)
+    - city: string
+    - toss_winner, toss_decision, result, winner, win_by_runs, win_by_wickets, player_of_match, venue
   - 'deliveries' DataFrame (df_deliveries): [match_id, innings, batting_team, bowling_team, over, ball, batter, bowler, non_striker, runs_batter, runs_extras, runs_total, wicket_kind, player_out]
 
   AVAILABLE LIBRARIES:
