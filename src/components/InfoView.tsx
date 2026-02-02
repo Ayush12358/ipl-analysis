@@ -52,14 +52,23 @@ export const InfoView = () => {
             </div>
 
             <Tabs defaultValue="overview" className="space-y-8">
-                <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl">
-                    <TabsTrigger value="overview" className="rounded-xl px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
+                <TabsList className="bg-slate-950/50 border border-white/10 p-1.5 rounded-2xl h-14">
+                    <TabsTrigger
+                        value="overview"
+                        className="rounded-xl px-8 h-full data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all font-bold"
+                    >
                         <Info className="w-4 h-4 mr-2" /> Overview
                     </TabsTrigger>
-                    <TabsTrigger value="engine" className="rounded-xl px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
+                    <TabsTrigger
+                        value="engine"
+                        className="rounded-xl px-8 h-full data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all font-bold"
+                    >
                         <Brain className="w-4 h-4 mr-2" /> AI Engine
                     </TabsTrigger>
-                    <TabsTrigger value="technical" className="rounded-xl px-6 data-[state=active]:bg-primary data-[state=active]:text-white">
+                    <TabsTrigger
+                        value="technical"
+                        className="rounded-xl px-8 h-full data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all font-bold"
+                    >
                         <Box className="w-4 h-4 mr-2" /> Technical
                     </TabsTrigger>
                 </TabsList>
@@ -111,8 +120,11 @@ export const InfoView = () => {
                                         Ayush12358/ipl-analysis
                                     </a>
                                 </div>
-                                <div className="pt-4 border-t border-white/5">
+                                <div className="pt-4 border-t border-white/5 space-y-2">
                                     <p className="text-xs text-slate-400 italic">Lead Developer: <strong>Ayush Maurya</strong></p>
+                                    <p className="text-[10px] text-slate-500 font-medium">
+                                        Built with the assistance of <span className="text-primary/80 font-bold">Google's Antigravity</span> AI Agent.
+                                    </p>
                                 </div>
                             </div>
                         </Card>

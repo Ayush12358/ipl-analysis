@@ -110,7 +110,7 @@ export default function App() {
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center glow">
             <Trophy className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight uppercase">Antigravity<span className="text-primary italic">IPL</span></h1>
+          <h1 className="text-xl font-bold tracking-tighter uppercase leading-none">IPL <span className="text-primary italic block text-xs tracking-widest font-black">Strategy Lab</span></h1>
         </div>
 
         <nav className="flex flex-col gap-2">
@@ -122,13 +122,19 @@ export default function App() {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id
-                ? 'bg-primary/10 text-primary border border-primary/20 glow'
+              className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id
+                ? 'bg-primary/20 text-white border border-primary/30 shadow-[0_0_20px_rgba(59,130,246,0.15)]'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium text-sm">{item.label}</span>
+              {activeTab === item.id && (
+                <motion.div
+                  layoutId="activeSideTab"
+                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                />
+              )}
+              <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-primary' : ''}`} />
+              <span className={`font-bold text-sm ${activeTab === item.id ? 'text-white' : ''}`}>{item.label}</span>
             </button>
           ))}
         </nav>
@@ -144,6 +150,7 @@ export default function App() {
               <p className="text-sm font-semibold text-white">Ayush</p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="px-1.5 py-0 h-4 border-primary/30 text-[9px] bg-primary/10 text-primary uppercase font-bold tracking-tighter">Master Analyst</Badge>
+                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.2.6</Badge>
               </div>
             </div>
           </div>
