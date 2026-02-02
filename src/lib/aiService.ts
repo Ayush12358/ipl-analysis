@@ -120,7 +120,21 @@ export async function generateSynthesisCode(query: string, history: any[], schem
 
   YOUR TASK:
   Based on the discovery history, write one FINAL Python script to extract and structure the precise data needed for the Strategy Report.
-  Focus on creating a 'result' dictionary that resolves the core user query with hard evidence.
+  
+  CRITICAL: Your Python script MUST create a 'result' dictionary with the following EXACT structure:
+  result = {
+      "summary": "One sentence summary of the key finding",
+      "chartType": "bar" OR "area",  # REQUIRED - choose based on data type
+      "chartData": [                  # REQUIRED - list of dicts for the chart
+          {"name": "Label1", "value": 123},
+          {"name": "Label2", "value": 456},
+          ...
+      ]
+  }
+  
+  - "chartData" MUST be a list of dictionaries with "name" (string) and "value" (number) keys.
+  - Use "bar" for comparisons/categories, "area" for time-series/trends.
+  - Limit chartData to 10-15 items max for readability.
 
   AVAILABLE DATA SCHEMA:
   ${JSON.stringify(schema)}
