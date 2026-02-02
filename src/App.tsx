@@ -34,10 +34,31 @@ export default function App() {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [apiKey, setApiKey] = useState(localStorage.getItem("GEMINI_API_KEY") || "");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
     initPyodide().catch(console.error);
+
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   const saveApiKey = (key: string) => {
     setApiKey(key);
@@ -140,6 +161,15 @@ export default function App() {
         </nav>
 
         <div className="mt-auto flex flex-col gap-4">
+          {deferredPrompt && (
+            <button
+              onClick={handleInstallClick}
+              className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all shadow-[0_0_15px_rgba(59,130,246,0.1)] active:scale-95"
+            >
+              <Download className="w-5 h-5 group-hover:bounce" />
+              <span className="font-bold text-xs uppercase tracking-widest">Install App</span>
+            </button>
+          )}
 
           <div className="flex items-center gap-3 px-2">
             <Avatar className="w-10 h-10 border border-white/10">
@@ -150,7 +180,7 @@ export default function App() {
               <p className="text-sm font-semibold text-white">Ayush</p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="px-1.5 py-0 h-4 border-primary/30 text-[9px] bg-primary/10 text-primary uppercase font-bold tracking-tighter">Master Analyst</Badge>
-                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.2.6</Badge>
+                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.3.1</Badge>
               </div>
             </div>
           </div>
