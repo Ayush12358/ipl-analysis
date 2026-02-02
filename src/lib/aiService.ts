@@ -1,12 +1,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI(API_KEY);
+// Removed .env dependency. User must provide key via UI.
 
-// Redundant function removed to favor agentic runAgentDeepAnalysis flow.
+function getModel(userKey?: string) {
+  const key = userKey;
+  if (!key) throw new Error("API Key is missing. Please configure it in Settings (gear icon).");
+  const genAI = new GoogleGenerativeAI(key);
+  return genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
+}
 
-export async function generateAgentAction(query: string, history: any[]): Promise<any> {
-  const model = genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
+// --- ANALYST AGENT: The Code Specialist ---
+export async function generateAnalystCode(query: string, history: any[], userKey?: string): Promise<any> {
+  const model = getModel(userKey);
 
   const historyContext = history.map(h => `
   Thought: ${h.thought}
@@ -14,78 +19,77 @@ export async function generateAgentAction(query: string, history: any[]): Promis
   Observation: ${h.observation}
   `).join("\n");
 
-  const systemPrompt = `You are the "Antigravity IPL Data Agent". You follow a ReAct (Reasoning and Acting) loop to solve complex queries.
-  
-  DATABASE SCHEMA:
-  - df_matches: [id, season, city, date, team1, team2, toss_winner, toss_decision, result, winner, win_by_runs, win_by_wickets, player_of_match, venue]
-  - df_deliveries: [match_id, innings, batting_team, bowling_team, over, ball, batsman, bowler, runs_overall, is_wicket, dismissal_kind]
-  
-  YOUR GOAL: Analyze the user's query and provide a detailed answer.
-  
-  DATA STRUCTURE GUIDELINES (2008-2025 Dataset):
-  - 'matches' and 'deliveries' are available as DataFrames 'df_matches' and 'df_deliveries'.
-  - Key columns: 'match_id', 'innings', 'batting_team', 'bowling_team', 'over', 'ball', 'batter', 'bowler', 'runs_batter', 'runs_extras', 'runs_total', 'wicket_kind', 'player_out', 'season', 'venue'.
-  
-  PREDICTIVE MODELING & STATS:
-  - Use 'scikit-learn' (sklearn) for Win Probability: feature engineering (runs_left, balls_left, wickets_lost) -> LogisticRegression.
-  - Calculate "Clutch Factor": Runs in 15-20 overs vs 1-6 overs, or performance in close finishes (runs_total when runs_target - current_score < 20).
-  - Calculate "Consistency Score": (Mean Runs / (StdDev + 1)) * log(Innings Count + 1).
-  - Always handle NaN/Missing values: df.fillna(0) for runs, df.dropna() for model targets.
-  - Performance Tip: Use df.groupby(['season', 'batting_team']).sum() for historical trends.
-  
-  REASONING LOOP:
-  - THOUGHT: Reflect on what you know and what you need to do next. If you see an error in the previous observation, reflect on why and how to fix it.
-  - ACTION: Either "EXECUTE_PYTHON" or "FINAL_ANSWER".
-  - CODE: If the action is "EXECUTE_PYTHON", provide the Pandas code.
-  
-  PYTHON RULES:
-  - Always create a 'result' dictionary with 'summary', 'chartData', and 'chartType'.
-  - Filter out players with too few innings (e.g., < 3) if the query implies a search for the "best" or "safest".
-  - Ensure 'chartData' has 'name' and 'value' keys.
-  
+  const systemPrompt = `You are the "Lead Data Analyst" for an IPL coding team.
+  Your ONLY job is to write precise, error-free Python code using Pandas, NumPy, and Scikit-learn to answer the user's query.
+
+  AVAILABLE DATA:
+  - 'matches' DataFrame (df_matches): [id, season, city, date, team1, team2, toss_winner, toss_decision, result, winner, win_by_runs, win_by_wickets, player_of_match, venue]
+  - 'deliveries' DataFrame (df_deliveries): [match_id, innings, batting_team, bowling_team, over, ball, batter, bowler, non_striker, runs_batter, runs_extras, runs_total, wicket_kind, player_out]
+
+  AVAILABLE LIBRARIES:
+  - pandas (pd), numpy (np), scikit-learn (sklearn)
+  - scipy.stats
+
+  STRICT RULES:
+  1. Return JSON with 'thought', 'action' (must be "EXECUTE_PYTHON"), and 'code'.
+  2. The 'code' must create a 'result' dictionary with:
+     - 'summary': A brief text summary of the data finding.
+     - 'chartData': Array of {name, value} objects for visualization.
+     - 'chartType': 'bar', 'line', 'pie', of 'area'.
+  3. DATA PREP:
+     - Handle NaN: df.fillna(0) for numeric, "Unknown" for categories.
+     - Join: df_deliveries.merge(df_matches, left_on='match_id', right_on='id') to link match dates/venues to deliveries.
+
   USER QUERY: ${query}
-  
-  PAST HISTORY:
+
+  HISTORY:
   ${historyContext}
-  
-  Output your response as JSON:
+
+  Output JSON format:
   {
-    "thought": "...",
-    "action": "EXECUTE_PYTHON" | "FINAL_ANSWER",
-    "code": "..." (only if executing python)
+    "thought": "I need to merge matches and deliveries to filter by season...",
+    "action": "EXECUTE_PYTHON",
+    "code": "import pandas as pd..."
   }
   `;
 
   const result = await model.generateContent(systemPrompt);
   const text = result.response.text();
   try {
-    // Basic JSON extraction from text
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return JSON.parse(jsonMatch ? jsonMatch[0] : text);
   } catch (e) {
-    // Fallback if model doesn't return clean JSON
-    return { thought: "Processing query...", action: "EXECUTE_PYTHON", code: text.replace(/```python/g, "").replace(/```/g, "").trim() };
+    return {
+      thought: "Parsing failed, attempting fallback execution",
+      action: "EXECUTE_PYTHON",
+      code: text.replace(/```python/g, "").replace(/```/g, "").trim()
+    };
   }
 }
 
-export async function generateReport(query: string, history: any[], finalResult: any): Promise<any> {
-  const model = genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
+// --- STRATEGIST AGENT: The Insight Specialist ---
+export async function generateStrategistReport(query: string, history: any[], finalResult: any, userKey?: string): Promise<any> {
+  const model = getModel(userKey);
 
-  const prompt = `Based on the following analysis history and the final data results, generate a highly professional sports analytics report.
-  
-  QUERY: ${query}
-  
+  const prompt = `You are the "Chief Cricket Strategist".
+  Your job is NOT to write code, but to interpret the raw data provided by the Analyst and write a world-class strategic report.
+
+  USER QUERY: ${query}
+
   HISTORY:
   ${JSON.stringify(history)}
-  
-  FINAL DATA:
+
+  ANALYST'S FINDINGS:
   ${JSON.stringify(finalResult)}
-  
-  The report MUST include:
-  1. "executiveSummary": A 2-3 sentence punchy summary of the key takeaway.
-  2. "detailedAnalysis": A deep dive into the methodology, findings, and tactical implications.
-  
-  Return as JSON:
+
+  YOUR TASK:
+  Generate a professional report with:
+  1. "executiveSummary": A 2-sentence "Headline" style summary. Focus on the 'So What?'.
+  2. "detailedAnalysis": A 3-paragraph deep dive using terms like "Momentum", "Clutch Factor", "Strike Rate", "Volatility".
+     - Explain *why* the data looks this way.
+     - Make a bold prediction or recommendation based on the stats.
+
+  Output JSON:
   {
     "executiveSummary": "...",
     "detailedAnalysis": "..."

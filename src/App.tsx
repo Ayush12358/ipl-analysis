@@ -12,6 +12,9 @@ import { initPyodide } from './lib/pyodideExecutor';
 import { runAgentDeepAnalysis, AgentTurn } from './lib/agentOrchestrator';
 import { switchToRealData } from './data/database';
 import { jsPDF } from 'jspdf';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const momentumData: any[] = [
   // ... existing data
@@ -27,10 +30,18 @@ export default function App() {
   const [showReasoning, setShowReasoning] = useState(true);
   const [isRealData, setIsRealData] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [apiKey, setApiKey] = useState(localStorage.getItem("GEMINI_API_KEY") || "");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     initPyodide().catch(console.error);
   }, []);
+
+  const saveApiKey = (key: string) => {
+    setApiKey(key);
+    localStorage.setItem("GEMINI_API_KEY", key);
+    setIsSettingsOpen(false);
+  };
 
   const handleToggleData = async () => {
     if (isRealData) {
@@ -85,7 +96,7 @@ export default function App() {
     try {
       const result = await runAgentDeepAnalysis(query, iplDatabase, (updatedTurns) => {
         setAgentTurns(updatedTurns);
-      });
+      }, apiKey); // Pass user API Key
       setAgentResult(result);
     } catch (err: any) {
       setError(err.message || "The agent encountered an error during analysis.");
@@ -169,9 +180,33 @@ export default function App() {
               {isRealData ? "Using Real Data" : "Switch to Real Data"}
             </Button>
             <Badge variant="outline" className="text-primary border-primary/20">AGENT ONLINE</Badge>
-            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-              <Settings className="w-5 h-5" />
-            </Button>
+            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                  <Settings className="w-5 h-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#020617] border-white/10 text-white">
+                <DialogHeader>
+                  <DialogTitle>Settings</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="apiKey" className="text-right text-slate-400">
+                      Gemini Key
+                    </Label>
+                    <Input
+                      id="apiKey"
+                      value={apiKey}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
+                      placeholder="AIzaSy..."
+                      className="col-span-3 bg-white/5 border-white/10 text-white focus:border-primary"
+                    />
+                  </div>
+                  <Button onClick={() => saveApiKey(apiKey)} className="ml-auto">Save Changes</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </header>
 
@@ -246,7 +281,7 @@ export default function App() {
                       </div>
                       <input
                         value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleRunAgent()}
                         placeholder="e.g. Compare Mumbai Indians and CSK performance in powerplays..."
                         className="flex-1 bg-transparent border-none focus:ring-0 text-lg placeholder:text-slate-600 font-medium py-6"
@@ -255,11 +290,12 @@ export default function App() {
                       <Button
                         size="lg"
                         onClick={handleRunAgent}
-                        disabled={isAnalyzing || !query}
-                        className="rounded-2xl h-14 px-8 mr-2 bg-primary hover:bg-primary/90 glow"
+                        disabled={isAnalyzing || !query || !apiKey}
+                        className="rounded-2xl h-14 px-8 mr-2 bg-primary hover:bg-primary/90 glow disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={!apiKey ? "Please configure API Key in Settings" : "Launch Analysis"}
                       >
                         {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5 mr-2" />}
-                        {isAnalyzing ? "Agent Reasoning..." : "Launch Analysis"}
+                        {isAnalyzing ? "Agent Reasoning..." : (!apiKey ? "Enter API Key" : "Launch Analysis")}
                       </Button>
                     </CardContent>
                   </Card>

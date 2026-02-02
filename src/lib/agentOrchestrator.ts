@@ -1,4 +1,4 @@
-import { generateAgentAction, generateReport } from './aiService';
+import { generateAnalystCode, generateStrategistReport } from './aiService';
 import { executePython } from './pyodideExecutor';
 
 export interface AgentTurn {
@@ -19,7 +19,8 @@ export interface AgentResult {
 export async function runAgentDeepAnalysis(
     query: string,
     database: any,
-    onUpdate: (turns: AgentTurn[]) => void
+    onUpdate: (turns: AgentTurn[]) => void,
+    userApiKey?: string // New optional parameter
 ): Promise<AgentResult> {
     const history: AgentTurn[] = [];
     let currentResult = null;
@@ -29,8 +30,8 @@ export async function runAgentDeepAnalysis(
     while (currentTurn < maxTurns) {
         currentTurn++;
 
-        // 1. Generate Thought & Action
-        const response = await generateAgentAction(query, history);
+        // 1. Analyst Agent: Generate Code
+        const response = await generateAnalystCode(query, history, userApiKey);
 
         const turn: AgentTurn = {
             thought: response.thought,
@@ -39,7 +40,7 @@ export async function runAgentDeepAnalysis(
             observation: ''
         };
 
-        // 2. Execute Action
+        // 2. Execution Engine
         if (response.action === 'EXECUTE_PYTHON' && response.code) {
             try {
                 const result = await executePython(response.code, database);
@@ -48,17 +49,15 @@ export async function runAgentDeepAnalysis(
                 history.push(turn);
                 onUpdate([...history]);
 
-                // If successful and provides enough info, we can stop
+                // If successful and provides enough info, we can stop and ask Strategist
                 break;
             } catch (err: any) {
                 turn.observation = "Error: " + err.message;
                 turn.error = err.message;
                 history.push(turn);
                 onUpdate([...history]);
-                // Loop continues for self-correction
             }
         } else {
-            // Final response or invalid action
             turn.observation = "Analysis Complete.";
             history.push(turn);
             onUpdate([...history]);
@@ -66,8 +65,8 @@ export async function runAgentDeepAnalysis(
         }
     }
 
-    // 3. Generate Final Reports
-    const reports = await generateReport(query, history, currentResult);
+    // 3. Strategist Agent: Generate Report
+    const reports = await generateStrategistReport(query, history, currentResult, userApiKey);
 
     return {
         turns: history,

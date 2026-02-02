@@ -1,73 +1,66 @@
-# React + TypeScript + Vite
+# IPL Analysis AI 🏏
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A next-generation IPL analytics platform powered by Agentic AI (Google Gemma 2) and Client-Side Python (Pyodide). This application allows users to query deep cricket insights using natural language, visualize data with dynamic charts, and generate professional PDF reports.
 
-Currently, two official plugins are available:
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **Agentic AI Core**: Dual-agent system ("Analyst" for code, "Strategist" for insights) driven by Google's Generative AI.
+- **Client-Side Execution**: Runs Python analysis directly in the browser using Pyodide (WASM) - zero server processing for data privacy.
+- **Deep Data Engine**: Pre-loaded with comprehensive IPL dataset (2008-2025) (~260k deliveries), optimized via Gzip.
+- **Rich Visualizations**: Interactive Recharts for Match Momentum, Run Rates, and Player Performance.
+- **Professional Reports**: One-click PDF export of AI-generated insights and charts.
+- **Secure**: BYOK (Bring Your Own Key) architecture. API keys are stored locally and never touch our servers.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **Framework**: React 19 + TypeScript + Vite
+- **AI**: Google Generative AI SDK (Gemini 2.0 Flash / Gemma-3-27b-it)
+- **Runtime**: Pyodide (Python 3.11 in WASM) + Pandas + Scikit-Learn
+- **Styling**: TailwindCSS v4 + Shadcn UI + Framer Motion
+- **Testing**: Bun Test
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
+- [Bun](https://bun.sh) (v1.0+)
+- Google Gemini API Key
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/ipl-analysis.git
+cd ipl-analysis
+
+# Install dependencies
+bun install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun run dev
 ```
+
+### Testing
+
+Run the high-coverage test suite (Data Engine + Agent Logic):
+
+```bash
+bun test
+```
+
+## 🏗️ Architecture
+
+The app uses a **Multi-Agent Orchestrator**:
+1.  **User Query** -> **Analyst Agent**: Writes Python code to query the `df_matches` and `df_deliveries` DataFrames.
+2.  **Pyodide Engine**: Executes the Python code in a sandboxed WASM worker.
+3.  **Observation**: Returns execution results (text + JSON chart data).
+4.  **Strategist Agent**: Synthesizes the results into a strategic cricket analysis.
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
