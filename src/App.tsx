@@ -252,7 +252,7 @@ export default function App() {
               <p className="text-sm font-semibold text-white">Ayush</p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="px-1.5 py-0 h-4 border-primary/30 text-[9px] bg-primary/10 text-primary uppercase font-bold tracking-tighter">Master Analyst</Badge>
-                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.7.0</Badge>
+                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v1.0.0</Badge>
               </div>
             </div>
           </div>
@@ -314,7 +314,9 @@ export default function App() {
                       placeholder="Enter your API key..."
                       className="bg-white/5 border-white/10 text-white focus:border-primary h-12 rounded-xl"
                     />
-                    <p className="text-[10px] text-slate-500">Your key is stored locally in your browser and is never sent to our servers.</p>
+                    <p className="text-[10px] text-slate-500">
+                      Your key is stored locally. <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Get your API key here →</a>
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="model" className="text-xs font-bold uppercase tracking-widest text-slate-500">

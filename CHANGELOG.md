@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.0.0] - 2026-02-03 🎉
+### First Stable Release!
+- **API Key Link**: Settings now links directly to Google AI Studio for easy key generation
+- **Mobile Ready**: Full responsive layout with hamburger menu
+- **Multi-Model Support**: Configure any Gemini/Gemma model
+- **Self-Healing AI**: Recursive feedback loop ensures quality responses
+- **PWA**: Install as native app on any device
+
+---
+
 ## [v0.7.0] - 2026-02-03
 ### Added
 - **Apache 2.0 License**: Added proper open-source licensing.

@@ -4,7 +4,7 @@ A next-generation IPL analytics platform powered by Agentic AI (Google Gemini / 
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
-![Version](https://img.shields.io/badge/version-0.7.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
 ## ✨ Features
 
