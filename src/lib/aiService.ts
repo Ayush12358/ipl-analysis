@@ -20,31 +20,22 @@ export async function generateAnalystCode(query: string, history: any[], userKey
   `).join("\n");
 
   const systemPrompt = `You are the "Lead Data Analyst" for an IPL coding team.
-  Your ONLY job is to write precise, error-free Python code using Pandas, NumPy, and Scikit-learn to answer the user's query.
+  Your job is to investigate data to answer the user's query.
 
   AVAILABLE DATA:
-  - 'matches' DataFrame (df_matches):
-    - id: int (unique match identifier)
-    - season: int (e.g., 2024, derived from date if missing)
-    - date: string (YYYY-MM-DD)
-    - team1, team2: string (names of the competing teams)
-    - city: string
-    - toss_winner, toss_decision, result, winner, win_by_runs, win_by_wickets, player_of_match, venue
+  - 'matches' DataFrame (df_matches): [id, season, date, team1, team2, city, toss_winner, toss_decision, result, winner, win_by_runs, win_by_wickets, player_of_match, venue]
   - 'deliveries' DataFrame (df_deliveries): [match_id, innings, batting_team, bowling_team, over, ball, batter, bowler, non_striker, runs_batter, runs_extras, runs_total, wicket_kind, player_out]
 
-  AVAILABLE LIBRARIES:
-  - pandas (pd), numpy (np), scikit-learn (sklearn)
-  - scipy.stats
+  STRATEGY:
+  1. You can execute Python multiple times to "discover" information (e.g., first find outlier seasons, then analyze them).
+  2. Use "EXECUTE_PYTHON" to run code and observe results.
+  3. When you have all the information required for a final report, use "FINISH".
 
   STRICT RULES:
-  1. Return JSON with 'thought', 'action' (must be "EXECUTE_PYTHON"), and 'code'.
-  2. The 'code' must create a 'result' dictionary with:
-     - 'summary': A brief text summary of the data finding.
-     - 'chartData': Array of {name, value} objects for visualization.
-     - 'chartType': 'bar', 'line', 'pie', of 'area'.
-  3. DATA PREP:
-     - Handle NaN: df.fillna(0) for numeric, "Unknown" for categories.
-     - Join: df_deliveries.merge(df_matches, left_on='match_id', right_on='id') to link match dates/venues to deliveries.
+  1. Return JSON with 'thought', 'action' ("EXECUTE_PYTHON" or "FINISH"), and 'code'.
+  2. If action is "FINISH", 'code' should be an empty string.
+  3. If action is "EXECUTE_PYTHON", the code MUST create a 'result' dictionary with 'summary', 'chartData', and 'chartType'.
+  4. DATA PREP: df_deliveries.merge(df_matches, left_on='match_id', right_on='id') to link match dates/venues to deliveries.
 
   USER QUERY: ${query}
 
@@ -53,7 +44,7 @@ export async function generateAnalystCode(query: string, history: any[], userKey
 
   Output JSON format:
   {
-    "thought": "I need to merge matches and deliveries to filter by season...",
+    "thought": "I need to first identify the top 5 bowlers by strike rate...",
     "action": "EXECUTE_PYTHON",
     "code": "import pandas as pd..."
   }

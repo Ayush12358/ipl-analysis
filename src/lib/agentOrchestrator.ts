@@ -49,16 +49,20 @@ export async function runAgentDeepAnalysis(
                 history.push(turn);
                 onUpdate([...history]);
 
-                // If successful and provides enough info, we can stop and ask Strategist
-                break;
+                // Continue loop to allow Analyst to see observation and decide next step
             } catch (err: any) {
                 turn.observation = "Error: " + err.message;
                 turn.error = err.message;
                 history.push(turn);
                 onUpdate([...history]);
             }
-        } else {
+        } else if (response.action === 'FINISH') {
             turn.observation = "Analysis Complete.";
+            history.push(turn);
+            onUpdate([...history]);
+            break; // Agent explicitly finished
+        } else {
+            turn.observation = "Unexpected Action. Terminating.";
             history.push(turn);
             onUpdate([...history]);
             break;

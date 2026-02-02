@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2026-02-03
+
+### Features
+- **Multi-Step AI Discovery**: Evolved the Analyst Agent from "one-shot" execution to a multi-turn discovery loop. The agent can now investigate data, observe results, and refine its logic over multiple turns.
+- **Reasoning Loop Logic**: Replaced immediate script exit with an observation-driven termination signal (`FINISH`).
+
 ## [0.1.1] - 2026-02-02
 
 ### Bug Fixes
@@ -14,6 +20,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.0] - 2026-02-02
 
 ### Features
+- **Multi-Step AI Discovery**: Evolved the Analyst Agent to perform multi-turn reasoning and data investigation using a `FINISH` termination signal.
 
 - **data-engine**: Optimize data size with Gzip compression (100MB -> 7MB) to fix git push limits and improve load times.
 - **analytics**: Implement Match Momentum Chart, Key Milestones, and Win Probability models.

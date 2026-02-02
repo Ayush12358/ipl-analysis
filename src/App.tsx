@@ -149,7 +149,11 @@ export default function App() {
             </Avatar>
             <div className="flex flex-col">
               <p className="text-sm font-semibold">Ayush</p>
-              <p className="text-[10px] text-slate-500">Master Analyst</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] text-slate-500">Master Analyst</p>
+                <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+                <p className="text-[10px] text-primary/70 font-mono">v0.1.2</p>
+              </div>
             </div>
           </div>
         </div>

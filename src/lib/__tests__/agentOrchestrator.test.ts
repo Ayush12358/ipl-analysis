@@ -88,10 +88,10 @@ describe("agentOrchestrator", () => {
 
         await runAgentDeepAnalysis("Loop", {}, () => { });
 
-        // Max turns is 3. Loop: while (currentTurn < maxTurns)
+        // Max turns is 3. Loop: while (currentTurn <= maxTurns)
         // 0 -> 1 (Call 1)
         // 1 -> 2 (Call 2)
-        // 2 -> 3 (Stop)
-        expect(generateAnalystCode).toHaveBeenCalledTimes(2);
+        // 2 -> 3 (Call 3)
+        expect(generateAnalystCode).toHaveBeenCalledTimes(3);
     });
 });
