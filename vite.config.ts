@@ -9,6 +9,13 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png', 'IPL.csv.gz'],
+      devOptions: {
+        enabled: true
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,gz,json}'],
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB to handle the IPL data
+      },
       manifest: {
         name: 'IPL Strategy Lab',
         short_name: 'IPL Lab',
@@ -16,6 +23,9 @@ export default defineConfig({
         theme_color: '#020617',
         background_color: '#020617',
         display: 'standalone',
+        orientation: 'any',
+        start_url: '/',
+        scope: '/',
         icons: [
           {
             src: 'icon-192.png',
