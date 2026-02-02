@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Zap, Settings, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Info, AlertCircle } from 'lucide-react';
+import { Zap, Settings, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Info, AlertCircle, History } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -36,6 +36,25 @@ export default function App() {
   const [apiKey, setApiKey] = useState(localStorage.getItem("GEMINI_API_KEY") || "");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [recentChats, setRecentChats] = useState<{ query: string, timestamp: number }[]>([]);
+
+  useEffect(() => {
+    // Load recent chats from localStorage
+    const saved = localStorage.getItem('IPL_RECENT_CHATS');
+    if (saved) {
+      try {
+        setRecentChats(JSON.parse(saved));
+      } catch (e) {
+        console.warn('Failed to parse recent chats');
+      }
+    }
+  }, []);
+
+  const saveRecentChat = (q: string) => {
+    const newChats = [{ query: q, timestamp: Date.now() }, ...recentChats.filter(c => c.query !== q)].slice(0, 5);
+    setRecentChats(newChats);
+    localStorage.setItem('IPL_RECENT_CHATS', JSON.stringify(newChats));
+  };
 
   useEffect(() => {
     initPyodide().catch(console.error);
@@ -120,7 +139,8 @@ export default function App() {
         setAgentStatus(status);
       }, apiKey);
       setAgentResult(result);
-      setAgentStatus(null); // Clear status when done
+      setAgentStatus(null);
+      saveRecentChat(query); // Save to recent chats
     } catch (err: any) {
       setError(err.message || "The agent encountered an error during analysis.");
     } finally {
@@ -164,6 +184,28 @@ export default function App() {
             </button>
           ))}
         </nav>
+
+        {/* Recent Chats */}
+        {recentChats.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 px-2 text-slate-500">
+              <History className="w-3 h-3" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Recent</span>
+            </div>
+            <div className="flex flex-col gap-1 max-h-32 overflow-y-auto custom-scrollbar">
+              {recentChats.map((chat, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setQuery(chat.query); setActiveTab('ailab'); }}
+                  className="text-left text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 truncate transition-colors"
+                  title={chat.query}
+                >
+                  {chat.query.length > 30 ? chat.query.slice(0, 30) + '...' : chat.query}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-auto flex flex-col gap-4">
           {deferredPrompt && (
