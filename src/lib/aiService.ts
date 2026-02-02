@@ -9,6 +9,17 @@ function getModel(userKey?: string) {
   return genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
 }
 
+function extractJson(text: string): any {
+  try {
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    return JSON.parse(jsonMatch[0]);
+  } catch (e) {
+    console.warn("JSON Extraction failed:", e);
+    return null;
+  }
+}
+
 // --- ARCHITECT AGENT: The Mission Planner ---
 export async function generateInvestigationPlan(query: string, userKey?: string): Promise<any> {
   const model = getModel(userKey);
@@ -38,7 +49,7 @@ export async function generateInvestigationPlan(query: string, userKey?: string)
 }
 
 // --- ANALYST AGENT: The Code Specialist ---
-export async function generateAnalystCode(query: string, history: any[], userKey?: string): Promise<any> {
+export async function generateAnalystCode(query: string, history: any[], schema: any, userKey?: string): Promise<any> {
   const model = getModel(userKey);
 
   const historyContext = history.map(h => `
@@ -51,13 +62,16 @@ export async function generateAnalystCode(query: string, history: any[], userKey
   Your job is to investigate data to answer the user's query.
 
   AVAILABLE DATA:
-  - 'matches' DataFrame (df_matches): [id, season, date, team1, team2, city, toss_winner, toss_decision, result, winner, win_by_runs, win_by_wickets, player_of_match, venue]
-  - 'deliveries' DataFrame (df_deliveries): [match_id, innings, batting_team, bowling_team, over, ball, batter, bowler, non_striker, runs_batter, runs_extras, runs_total, wicket_kind, player_out]
+  - 'matches' DataFrame (df_matches): ${JSON.stringify(schema.df_matches)}
+  - 'deliveries' DataFrame (df_deliveries): ${JSON.stringify(schema.df_deliveries)}
+  - 'teams' DataFrame (df_teams): ${JSON.stringify(schema.df_teams)}
 
   STRATEGY:
-  1. You can execute Python multiple times to "discover" information (e.g., first find outlier seasons, then analyze them).
-  2. Use "EXECUTE_PYTHON" to run code and observe results.
-  3. When you have all the information required for a final report, use "FINISH".
+  1. You can execute Python multiple times to "discover" information.
+  2. Use the provided column names to avoid KeyErrors.
+  3. Use "EXECUTE_PYTHON" to run code and observe results.
+  4. If a previous turn failed with an error, FIX the code using the error trace.
+  5. When you have all the information, use "FINISH".
 
   STRICT RULES:
   1. Return JSON with 'thought', 'action' ("EXECUTE_PYTHON" or "FINISH"), and 'code'.
@@ -80,20 +94,19 @@ export async function generateAnalystCode(query: string, history: any[], userKey
 
   const result = await model.generateContent(systemPrompt);
   const text = result.response.text();
-  try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    return JSON.parse(jsonMatch ? jsonMatch[0] : text);
-  } catch (e) {
-    return {
-      thought: "Parsing failed, attempting fallback execution",
-      action: "EXECUTE_PYTHON",
-      code: text.replace(/```python/g, "").replace(/```/g, "").trim()
-    }
+  const parsed = extractJson(text);
+  if (parsed) return parsed;
+
+  return {
+    thought: "Falling back to raw code extraction",
+    action: "EXECUTE_PYTHON",
+    code: text.replace(/```python/g, "").replace(/```/g, "").trim()
   }
 }
 
+
 // --- SYNTHESIS AGENT: The Data Consolidator ---
-export async function generateSynthesisCode(query: string, history: any[], userKey?: string): Promise<any> {
+export async function generateSynthesisCode(query: string, history: any[], schema: any, userKey?: string): Promise<any> {
   const model = getModel(userKey);
 
   const historyContext = history.map(h => `
@@ -109,7 +122,8 @@ export async function generateSynthesisCode(query: string, history: any[], userK
   Based on the discovery history, write one FINAL Python script to extract and structure the precise data needed for the Strategy Report.
   Focus on creating a 'result' dictionary that resolves the core user query with hard evidence.
 
-  AVAILABLE DATA: [matches, deliveries]
+  AVAILABLE DATA SCHEMA:
+  ${JSON.stringify(schema)}
   
   HISTORY:
   ${historyContext}
@@ -126,8 +140,7 @@ export async function generateSynthesisCode(query: string, history: any[], userK
 
   const result = await model.generateContent(systemPrompt);
   const text = result.response.text();
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  return JSON.parse(jsonMatch ? jsonMatch[0] : text);
+  return extractJson(text) || { thought: "Synthesis failed", action: "FINISH", code: "" };
 }
 
 // --- STRATEGIST AGENT: The Insight Specialist ---
@@ -184,16 +197,17 @@ export async function evaluateResponseAdequacy(query: string, history: any[], fi
   Judge if the report is:
   1. "isAdequate": boolean (true if the query is directy and fully answered).
   2. "feedback": string (If true, a short praise. If false, specify exactly what is missing).
+  3. "enhancedQuery": string (OPTIONAL: If isAdequate is false, write a new, more specific query that would fix the issues. Otherwise null).
 
   Output JSON:
   {
     "isAdequate": true/false,
-    "feedback": "..."
+    "feedback": "...",
+    "enhancedQuery": "..."
   }
   `;
 
   const result = await model.generateContent(prompt);
   const text = result.response.text();
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  return JSON.parse(jsonMatch ? jsonMatch[0] : text);
+  return extractJson(text) || { isAdequate: true, feedback: "Auditor failed to parse.", enhancedQuery: null };
 }

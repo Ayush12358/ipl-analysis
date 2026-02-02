@@ -8,6 +8,8 @@ A next-generation IPL analytics platform powered by Agentic AI (Google Gemma 2) 
 ## ✨ Features
 
 - **Agentic AI Core**: Dual-agent system ("Analyst" for code, "Strategist" for insights) driven by Google's Generative AI.
+- **Self-Healing Intelligence**: v0.5.0 introduces a **Recursive Feedback Loop** where the AI audits its own work and auto-restarts with better strategy if the initial output is inadequate.
+- **Robustness Layer**: Schema-aware code generation prevents runtime errors by establishing a "handshake" with the database before execution.
 - **Client-Side Execution**: Runs Python analysis directly in the browser using Pyodide (WASM) - zero server processing for data privacy.
 - **Deep Data Engine**: Pre-loaded with comprehensive IPL dataset (2008-2025) (~260k deliveries), optimized via Gzip.
 - **Rich Visualizations**: Interactive Recharts for Match Momentum, Run Rates, and Player Performance.

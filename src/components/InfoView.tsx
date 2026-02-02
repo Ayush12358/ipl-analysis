@@ -35,11 +35,17 @@ export const InfoView = () => {
     Auditor -- "Adequacy Judgment" --> UI([Dashboard Update + Quality Badge])
     end
 
+    subgraph "Phase 5: Recursive Feedback (Self-Correction)"
+    Auditor -- "Rejection + Enhanced Query" --> Recursion{Auto-Restart}
+    Recursion -- "New Plan" --> Planning
+    end
+
     style Planning fill:#ec4899,stroke:#fff,color:#fff
     style Analyst fill:#3b82f6,stroke:#fff,color:#fff
     style Synthesis fill:#10b981,stroke:#fff,color:#fff
     style Strategist fill:#8b5cf6,stroke:#fff,color:#fff
     style Auditor fill:#f59e0b,stroke:#fff,color:#fff
+    style Recursion fill:#ef4444,stroke:#fff,color:#fff
   `;
 
     return (
@@ -138,11 +144,11 @@ export const InfoView = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {[
                                 "Autonomous Multi-Agent Discovery Loop",
+                                "Robustness Layer v0.4.0 (Self-Healing)",
+                                "Schema Probe & Auto-Correction",
+                                "Cinematic PWA Experience",
                                 "Pyodide-powered Client-side Python Execution",
-                                "Strategic IPL Intel Synthesis",
-                                "Mission Brief Planning System",
                                 "Independent Analytical Auditor (QA)",
-                                "Interactive GZIP Compressed Database",
                                 "Mermaid.js Agent Flow Visualization",
                                 "Framer-Motion Ultra-Fluid Animations"
                             ].map((feature, i) => (
@@ -225,7 +231,7 @@ export const InfoView = () => {
                                 <div className="flex flex-wrap gap-2">
                                     {[
                                         "@google/generative-ai", "mermaid", "papaparse", "framer-motion",
-                                        "recharts", "jspdf", "lucide-react", "clsx", "tailwind-merge",
+                                        "recharts", "jspdf", "lucide-react", "vite-plugin-pwa",
                                         "@radix-ui/react-tabs", "@radix-ui/react-dialog", "@radix-ui/react-avatar"
                                     ].map((pkg) => (
                                         <code key={pkg} className="text-[10px] bg-white/5 px-2 py-1 rounded-md border border-white/10 text-slate-400">
