@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Zap, Settings, Search, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Share2, AlertCircle } from 'lucide-react';
+import { Zap, Settings, Search, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Share2, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,13 +20,7 @@ import { Input } from "@/components/ui/input";
 import { HomeView } from './components/HomeView';
 import { WorkflowView } from './components/WorkflowView';
 
-const momentumData: any[] = [
-  { over: 1, csk: 8, mi: 6 },
-  { over: 5, csk: 45, mi: 38 },
-  { over: 10, csk: 82, mi: 88 },
-  { over: 15, csk: 135, mi: 121 },
-  { over: 20, csk: 198, mi: 192 },
-];
+
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -124,7 +118,6 @@ export default function App() {
             { id: 'home', icon: HomeIcon, label: 'Home' },
             { id: 'ailab', icon: BrainCircuit, label: 'AI Strategy Lab' },
             { id: 'workflow', icon: Share2, label: 'AI Workflow' },
-            { id: 'dashboard', icon: LayoutDashboard, label: 'Standard Analytics' },
           ].map((item) => (
             <button
               key={item.id}
@@ -501,37 +494,6 @@ export default function App() {
               </motion.div>
             )}
 
-            {activeTab === 'dashboard' && (
-              <motion.div
-                key="dashboard"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col gap-8"
-              >
-                <Card className="bg-white/5 border-white/5 overflow-hidden">
-                  <CardHeader className="flex flex-row items-center justify-between pb-8">
-                    <div>
-                      <CardTitle className="text-xl font-bold italic tracking-tighter uppercase">Standard <span className="text-primary italic">Momentum</span></CardTitle>
-                      <CardDescription>CSK vs MI Historical Momentum Variance</CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="h-[450px] p-8">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={momentumData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                        <XAxis dataKey="over" stroke="rgba(255,255,255,0.3)" fontSize={12} />
-                        <YAxis stroke="rgba(255,255,255,0.3)" fontSize={12} />
-                        <RechartsTooltip contentStyle={{ background: '#020617', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} />
-                        <Area type="monotone" dataKey="csk" stroke="#F9CD05" fill="#F9CD05" fillOpacity={0.1} strokeWidth={4} />
-                        <Area type="monotone" dataKey="mi" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} strokeWidth={4} />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
           </AnimatePresence>
         </div>
       </main >

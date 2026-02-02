@@ -38,9 +38,6 @@ export const HomeView = ({ onStart }: HomeViewProps) => {
                             Launch Strategy Engine
                             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Button>
-                        <Button size="lg" variant="outline" className="rounded-full px-8 border-white/10 text-white font-bold h-14 hover:bg-white/5">
-                            Watch Demo
-                        </Button>
                     </div>
                 </motion.div>
             </section>
