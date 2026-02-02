@@ -1,6 +1,6 @@
 # IPL Analysis AI 🏏
 
-A next-generation IPL analytics platform powered by Agentic AI (Google Gemma 2) and Client-Side Python (Pyodide). This application allows users to query deep cricket insights using natural language, visualize data with dynamic charts, and generate professional PDF reports.
+A next-generation IPL analytics platform powered by Agentic AI (Google Gemma 3) and Client-Side Python (Pyodide). This application allows users to query deep cricket insights using natural language, visualize data with dynamic charts, and generate professional PDF reports.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)

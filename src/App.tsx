@@ -15,6 +15,7 @@ import { jsPDF } from 'jspdf';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // New View Components
 import { HomeView } from './components/HomeView';
@@ -37,6 +38,14 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [recentChats, setRecentChats] = useState<{ query: string, timestamp: number }[]>([]);
+  const [selectedModel, setSelectedModel] = useState(localStorage.getItem('IPL_SELECTED_MODEL') || 'gemma-3-27b-it');
+
+  const MODEL_OPTIONS = [
+    { value: 'gemma-3-27b-it', label: 'Gemma 3 27B' },
+    { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+    { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+    { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+  ];
 
   useEffect(() => {
     // Load recent chats from localStorage
@@ -83,7 +92,11 @@ export default function App() {
   const saveApiKey = (key: string) => {
     setApiKey(key);
     localStorage.setItem("GEMINI_API_KEY", key);
-    setIsSettingsOpen(false);
+  };
+
+  const saveModel = (model: string) => {
+    setSelectedModel(model);
+    localStorage.setItem('IPL_SELECTED_MODEL', model);
   };
 
   const handleToggleData = async () => {
@@ -256,7 +269,7 @@ export default function App() {
             </Button>
             <Badge variant="outline" className="text-emerald-500 border-emerald-500/20 bg-emerald-500/5 h-9 flex items-center px-4 font-bold tracking-tight">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
-              Gemma-3-27B-IT
+              {MODEL_OPTIONS.find(m => m.value === selectedModel)?.label || selectedModel}
             </Badge>
             <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
               <DialogTrigger asChild>
@@ -283,7 +296,25 @@ export default function App() {
                     />
                     <p className="text-[10px] text-slate-500">Your key is stored locally in your browser and is never sent to our servers.</p>
                   </div>
-                  <Button onClick={() => saveApiKey(apiKey)} className="h-12 rounded-xl font-bold uppercase tracking-widest">Update Configuration</Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="model" className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                      AI Model
+                    </Label>
+                    <Select value={selectedModel} onValueChange={saveModel}>
+                      <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl">
+                        <SelectValue placeholder="Select model" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#020617] border-white/10">
+                        {MODEL_OPTIONS.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-white/10">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[10px] text-slate-500">Select the AI model to use for analysis.</p>
+                  </div>
+                  <Button onClick={() => { saveApiKey(apiKey); setIsSettingsOpen(false); }} className="h-12 rounded-xl font-bold uppercase tracking-widest">Update Configuration</Button>
                 </div>
               </DialogContent>
             </Dialog>

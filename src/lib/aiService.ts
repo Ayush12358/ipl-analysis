@@ -2,11 +2,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Removed .env dependency. User must provide key via UI.
 
-function getModel(userKey?: string) {
+function getModel(userKey?: string, modelName?: string) {
   const key = userKey;
   if (!key) throw new Error("API Key is missing. Please configure it in Settings (gear icon).");
   const genAI = new GoogleGenerativeAI(key);
-  return genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
+  return genAI.getGenerativeModel({ model: modelName || "gemma-3-27b-it" });
 }
 
 function extractJson(text: string): any {
