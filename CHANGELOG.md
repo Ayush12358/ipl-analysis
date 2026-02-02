@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.5.0] - 2026-02-03
+### Added
+- **Recursive Feedback Loop**: Integrated a macro-level self-correction mechanism where the Auditor Agent can trigger a full re-investigation with an enhanced prompt if the initial report is rejected.
+- **Robustness Layer**: Implemented schema awareness in the Analyst agent to probe the database structure before coding, eliminating common `KeyError` failures.
+- **Self-Healing Synthesis**: Added retry logic to the data consolidation phase, allowing the system to recover from synthesis errors automatically.
+- **Pre-commit Hooks**: Configured `husky` to run `bun run build` before every commit to ensure repository stability.
+
+### Changed
+- **Project Structure**: Updated `InfoView.tsx` to visualize the new "Phase 5" recursive loop in the agent flowchart.
+- **Documentation**: Updated README to reflect the new self-healing capabilities.
+
+
 All notable changes to this project will be documented in this file.
 
 ## [0.1.4] - 2026-02-03
