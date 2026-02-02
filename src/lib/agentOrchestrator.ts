@@ -1,4 +1,4 @@
-import { generateAnalystCode, generateStrategistReport, generateSynthesisCode, evaluateResponseAdequacy } from './aiService';
+import { generateAnalystCode, generateStrategistReport, generateSynthesisCode, evaluateResponseAdequacy, generateInvestigationPlan } from './aiService';
 import { executePython } from './pyodideExecutor';
 
 export interface AgentTurn {
@@ -10,6 +10,11 @@ export interface AgentTurn {
 }
 
 export interface AgentResult {
+    plan?: {
+        elaboration: string;
+        steps: string[];
+        metrics: string[];
+    };
     turns: AgentTurn[];
     executiveSummary: string;
     detailedAnalysis: string;
@@ -30,6 +35,9 @@ export async function runAgentDeepAnalysis(
     let currentResult = null;
     let maxTurns = 3;
     let currentTurn = 0;
+
+    // --- STAGE 0: Planning & Elaboration ---
+    const plan = await generateInvestigationPlan(query, userApiKey);
 
     while (currentTurn < maxTurns) {
         currentTurn++;
@@ -104,6 +112,7 @@ export async function runAgentDeepAnalysis(
     const evaluation = await evaluateResponseAdequacy(query, history, reports, userApiKey);
 
     return {
+        plan: plan,
         turns: history,
         executiveSummary: reports.executiveSummary,
         detailedAnalysis: reports.detailedAnalysis,

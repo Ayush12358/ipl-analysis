@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Zap, Settings, Search, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import { LayoutDashboard, Users, Zap, Settings, Search, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -152,7 +152,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <p className="text-[10px] text-slate-500">Master Analyst</p>
                 <span className="w-1 h-1 rounded-full bg-slate-700"></span>
-                <p className="text-[10px] text-primary/70 font-mono">v0.1.3</p>
+                <p className="text-[10px] text-primary/70 font-mono">v0.1.4</p>
               </div>
             </div>
           </div>
@@ -330,6 +330,46 @@ export default function App() {
                               </CardTitle>
                             </CardHeader>
                           </Card>
+
+                          {/* Mission Brief (Investigation Plan) */}
+                          {agentResult.plan && (
+                            <Card className="bg-[#020617] border-white/10 overflow-hidden">
+                              <CardHeader className="bg-primary/10 border-b border-white/5 py-3">
+                                <div className="flex items-center gap-2">
+                                  <ClipboardCheck className="w-4 h-4 text-primary" />
+                                  <CardTitle className="text-xs font-bold uppercase tracking-widest text-primary">Mission Brief</CardTitle>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="p-6">
+                                <p className="text-sm text-slate-300 italic mb-6 border-l-2 border-primary/30 pl-4">
+                                  "{agentResult.plan.elaboration}"
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                  <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-tighter text-slate-500">Investigation Steps</h4>
+                                    <ul className="space-y-2">
+                                      {agentResult.plan.steps.map((step, idx) => (
+                                        <li key={idx} className="text-xs text-slate-400 flex items-start gap-2">
+                                          <span className="text-primary font-mono bg-primary/10 px-1.5 rounded">{idx + 1}</span>
+                                          {step}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                  <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-tighter text-slate-500">Key Data Points</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {agentResult.plan.metrics.map((metric, idx) => (
+                                        <Badge key={idx} variant="outline" className="bg-emerald-500/5 text-emerald-400/80 border-emerald-500/20 font-mono text-[10px]">
+                                          {metric}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
 
                           {/* Data Visualization */}
                           <Card className="bg-white/5 border-white/5 overflow-hidden">

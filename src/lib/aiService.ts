@@ -9,6 +9,34 @@ function getModel(userKey?: string) {
   return genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
 }
 
+// --- ARCHITECT AGENT: The Mission Planner ---
+export async function generateInvestigationPlan(query: string, userKey?: string): Promise<any> {
+  const model = getModel(userKey);
+
+  const prompt = `You are the "Lead Data Architect".
+  Your job is to take a user's cricketing query and turn it into a high-level investigation plan.
+  
+  YOUR TASK:
+  1. Elaborate on the query: What are we *really* looking for? (e.g. Strike rate in specific overs, venue bias, etc.)
+  2. Outline the steps: What data needs to be joined? What filtering logic will we use?
+  3. Identify Key Metrics: Which columns our Analyst should focus on?
+
+  USER QUERY: ${query}
+
+  Output JSON:
+  {
+    "elaboration": "...",
+    "steps": ["Step 1...", "Step 2..."],
+    "metrics": ["metric_a", "metric_b"]
+  }
+  `;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  return JSON.parse(jsonMatch ? jsonMatch[0] : text);
+}
+
 // --- ANALYST AGENT: The Code Specialist ---
 export async function generateAnalystCode(query: string, history: any[], userKey?: string): Promise<any> {
   const model = getModel(userKey);

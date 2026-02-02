@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2026-02-03
+
+### Features
+- **Mission Planning Agent**: Added a new stage (Stage 0) where the AI elaborates on the query, outlines steps, and identifies key metrics before starting the investigation.
+- **Mission Brief UI**: Integrated a new "Mission Brief" card in the analysis report to display the agent's plan and intended course of action.
+
 ## [0.1.3] - 2026-02-03
 
 ### Features
