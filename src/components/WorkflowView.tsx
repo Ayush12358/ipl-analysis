@@ -1,10 +1,10 @@
-import React from 'react';
-import Mermaid from 'react-mermaid-js';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
+import Mermaid from './Mermaid';
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Search, GitMerge, FileCheck, ShieldAlert } from 'lucide-react';
 
-export const WorkflowView: React.FC = () => {
+export const WorkflowView = () => {
     const chart = `
   graph TD
     User([User Query]) --> Planning[Lead Architect]
@@ -45,72 +45,36 @@ export const WorkflowView: React.FC = () => {
         <div className="flex flex-col gap-8 pb-20">
             <div className="space-y-4">
                 <h2 className="text-4xl font-black italic tracking-tight uppercase">Agentic <span className="text-primary font-bold">Engine</span></h2>
-                <p className="text-slate-400 max-w-3xl">
+                <p className="text-slate-400 max-w-3xl font-medium leading-relaxed">
                     Observe how the IPL Strategy Lab orchestrates five specialized AI agents to ensure every
                     strategic insight is backed by multi-step data investigation and an independent quality audit.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <Card className="lg:col-span-3 bg-white/5 border-white/5 p-8 flex items-center justify-center overflow-auto custom-scrollbar min-h-[600px]">
-                    <Mermaid chart={chart} config={{ theme: 'dark' }} />
+                <Card className="lg:col-span-3 bg-white/[0.02] border-white/5 p-8 flex items-center justify-center overflow-auto custom-scrollbar min-h-[600px] rounded-3xl">
+                    <Mermaid chart={chart} />
                 </Card>
 
                 <div className="space-y-4">
-                    <Card className="bg-primary/5 border-primary/20">
-                        <CardHeader className="p-4">
-                            <div className="flex items-center gap-2 mb-1">
-                                <Brain className="w-4 h-4 text-primary" />
-                                <Badge className="bg-primary">ROLE: PLANNER</Badge>
-                            </div>
-                            <CardTitle className="text-sm">Lead Architect</CardTitle>
-                            <CardDescription className="text-[10px]">Defines the blueprint before investigation begins.</CardDescription>
-                        </CardHeader>
-                    </Card>
-
-                    <Card className="bg-blue-500/5 border-blue-500/20">
-                        <CardHeader className="p-4">
-                            <div className="flex items-center gap-2 mb-1">
-                                <Search className="w-4 h-4 text-blue-400" />
-                                <Badge className="bg-blue-500">ROLE: INVESTIGATOR</Badge>
-                            </div>
-                            <CardTitle className="text-sm">Lead Analyst</CardTitle>
-                            <CardDescription className="text-[10px]">Writes and executes code in multiple discovery turns.</CardDescription>
-                        </CardHeader>
-                    </Card>
-
-                    <Card className="bg-emerald-500/5 border-emerald-500/20">
-                        <CardHeader className="p-4">
-                            <div className="flex items-center gap-2 mb-1">
-                                <GitMerge className="w-4 h-4 text-emerald-400" />
-                                <Badge className="bg-emerald-500">ROLE: CONSOLIDATOR</Badge>
-                            </div>
-                            <CardTitle className="text-sm">Synthesis Agent</CardTitle>
-                            <CardDescription className="text-[10px]">Wraps multi-step findings into one clean evidence package.</CardDescription>
-                        </CardHeader>
-                    </Card>
-
-                    <Card className="bg-purple-500/5 border-purple-500/20">
-                        <CardHeader className="p-4">
-                            <div className="flex items-center gap-2 mb-1">
-                                <FileCheck className="w-4 h-4 text-purple-400" />
-                                <Badge className="bg-purple-500">ROLE: STRATEGIST</Badge>
-                            </div>
-                            <CardTitle className="text-sm">Chief Strategist</CardTitle>
-                            <CardDescription className="text-[10px]">Translates raw facts into world-class IPL insights.</CardDescription>
-                        </CardHeader>
-                    </Card>
-
-                    <Card className="bg-amber-500/5 border-amber-500/20">
-                        <CardHeader className="p-4">
-                            <div className="flex items-center gap-2 mb-1">
-                                <ShieldAlert className="w-4 h-4 text-amber-400" />
-                                <Badge className="bg-amber-500">ROLE: AUDITOR</Badge>
-                            </div>
-                            <CardTitle className="text-sm">Analytical Auditor</CardTitle>
-                            <CardDescription className="text-[10px]">Independent quality gate ensuring the query is 100% answered.</CardDescription>
-                        </CardHeader>
-                    </Card>
+                    {[
+                        { Icon: Brain, badge: "ROLE: PLANNER", title: "Lead Architect", desc: "Defines the blueprint before investigation begins.", color: "primary" },
+                        { Icon: Search, badge: "ROLE: INVESTIGATOR", title: "Lead Analyst", desc: "Writes and executes code in multiple discovery turns.", color: "blue-500" },
+                        { Icon: GitMerge, badge: "ROLE: CONSOLIDATOR", title: "Synthesis Agent", desc: "Wraps multi-step findings into one clean evidence package.", color: "emerald-500" },
+                        { Icon: FileCheck, badge: "ROLE: STRATEGIST", title: "Chief Strategist", desc: "Translates raw facts into world-class IPL insights.", color: "purple-500" },
+                        { Icon: ShieldAlert, badge: "ROLE: AUDITOR", title: "Analytical Auditor", desc: "Independent quality gate ensuring the query is 100% answered.", color: "amber-500" }
+                    ].map((agent, i) => (
+                        <Card key={i} className={`bg-${agent.color}/5 border-${agent.color}/20 rounded-2xl`}>
+                            <CardHeader className="p-4">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <agent.Icon className={`w-4 h-4 text-${agent.color}`} />
+                                    <Badge className={`bg-${agent.color} text-[8px] px-2 py-0 h-4`}>{agent.badge}</Badge>
+                                </div>
+                                <CardTitle className="text-sm font-bold">{agent.title}</CardTitle>
+                                <CardDescription className="text-[10px] leading-tight mt-1">{agent.desc}</CardDescription>
+                            </CardHeader>
+                        </Card>
+                    ))}
                 </div>
             </div>
         </div>

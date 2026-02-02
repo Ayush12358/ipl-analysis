@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ interface HomeViewProps {
     onStart: () => void;
 }
 
-export const HomeView: React.FC<HomeViewProps> = ({ onStart }) => {
+export const HomeView = ({ onStart }: HomeViewProps) => {
     return (
         <div className="flex flex-col gap-20 pb-20">
             {/* Hero Section */}
@@ -34,11 +34,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ onStart }) => {
                         synthesize complex delivery data, and generate world-class strategic reports in seconds.
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
-                        <Button size="xl" onClick={onStart} className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white font-bold h-14 group">
+                        <Button size="lg" onClick={onStart} className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white font-bold h-14 group">
                             Launch Strategy Engine
                             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Button>
-                        <Button size="xl" variant="outline" className="rounded-full px-8 border-white/10 text-white font-bold h-14 hover:bg-white/5">
+                        <Button size="lg" variant="outline" className="rounded-full px-8 border-white/10 text-white font-bold h-14 hover:bg-white/5">
                             Watch Demo
                         </Button>
                     </div>
