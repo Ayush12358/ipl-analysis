@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.7.0] - 2026-02-03
+### Added
+- **Apache 2.0 License**: Added proper open-source licensing.
+- **Mobile Responsive Layout**: Hamburger menu, slide-in sidebar, compact header for Android/iOS.
+- **Model Selection**: Configure any AI model in Settings (text input).
+- **Recent Chats**: Sidebar shows last 5 queries with localStorage persistence.
+- **Agent Status Progress**: Real-time progress bar showing agent stages (`[2/6] Planning...`).
+
+### Fixed
+- **Empty Chart Bug**: Synthesis prompt now enforces `chartData` format for consistent visualizations.
+
+### Changed
+- **Repo Cleanup**: Removed debug files (`inspect_headers.ts`, `test-agent.ts`).
+- **README**: Updated with current features, architecture diagram, and Apache license.
+
+---
+
 ## [v0.5.0] - 2026-02-03
 ### Added
 - **Recursive Feedback Loop**: Integrated a macro-level self-correction mechanism where the Auditor Agent can trigger a full re-investigation with an enhanced prompt if the initial report is rejected.
@@ -10,7 +27,6 @@
 ### Changed
 - **Project Structure**: Updated `InfoView.tsx` to visualize the new "Phase 5" recursive loop in the agent flowchart.
 - **Documentation**: Updated README to reflect the new self-healing capabilities.
-
 
 All notable changes to this project will be documented in this file.
 
