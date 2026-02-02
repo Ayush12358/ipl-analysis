@@ -180,7 +180,7 @@ export default function App() {
               <p className="text-sm font-semibold text-white">Ayush</p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="px-1.5 py-0 h-4 border-primary/30 text-[9px] bg-primary/10 text-primary uppercase font-bold tracking-tighter">Master Analyst</Badge>
-                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.3.5</Badge>
+                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.3.7</Badge>
               </div>
             </div>
           </div>

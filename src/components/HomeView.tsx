@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Zap, BrainCircuit, ShieldCheck, ChevronRight, Trophy, BarChart3, Users2 } from 'lucide-react';
+import iplHeroBg from '@/assets/ipl_hero_bg.png';
 
 interface HomeViewProps {
     onStart: () => void;
@@ -13,7 +14,12 @@ export const HomeView = ({ onStart }: HomeViewProps) => {
     return (
         <div className="flex flex-col gap-20 pb-20">
             {/* Hero Section */}
-            <section className="relative h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] border border-white/5 shadow-2xl">
+            <section className="relative h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden rounded-[2.5rem] bg-[#020617] border border-white/5 shadow-2xl">
+                <div
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-overlay"
+                    style={{ backgroundImage: `url(${iplHeroBg})` }}
+                ></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]"></div>
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none"></div>
 
