@@ -1,9 +1,9 @@
 import { matches as mockMatches } from './mockData';
-import { loadRealIPLData } from '../lib/dataLoader';
+import { loadRealIPLData, IPLData, Match, Delivery } from '../lib/dataLoader';
 
 // Deliveries mock data generator with weighted player performance
-export const generateDeliveries = () => {
-    const deliveries: any[] = [];
+export const generateDeliveries = (): Delivery[] => {
+    const deliveries: Delivery[] = [];
     const starBatsmen = ["Virat Kohli", "MS Dhoni", "Rohit Sharma", "David Warner", "AB de Villiers", "Suresh Raina"];
     const bowlers = ["Jasprit Bumrah", "Rashid Khan", "Sunil Narine", "Lasith Malinga", "Yuzvendra Chahal", "Trent Boult"];
 
@@ -36,16 +36,18 @@ export const generateDeliveries = () => {
 
                     deliveries.push({
                         match_id: match.id,
-                        innings,
+                        inning: innings,
                         batting_team: battingTeam,
                         bowling_team: bowlingTeam,
                         over,
                         ball,
-                        batsman: currentBatsman,
+                        batter: currentBatsman,
                         bowler: currentBowler,
-                        runs_overall: runs,
-                        is_wicket: Math.random() < 0.04 ? 1 : 0,
-                        dismissal_kind: Math.random() < 0.03 ? "caught" : null
+                        non_striker: "Non Striker",
+                        batter_runs: runs,
+                        extra_runs: 0,
+                        total_runs: runs,
+                        wicket_label: Math.random() < 0.04 ? "out" : ""
                     });
                 }
             }
@@ -54,8 +56,12 @@ export const generateDeliveries = () => {
     return deliveries;
 };
 
-export const iplDatabase = {
-    matches: mockMatches,
+export interface DatabaseSchema extends IPLData {
+    teams: any[];
+}
+
+export const iplDatabase: DatabaseSchema = {
+    matches: mockMatches as unknown as Match[], // Force cast mock data for now if fields differ slightly
     deliveries: generateDeliveries(),
     teams: [
         { id: 'CSK', name: 'Chennai Super Kings', captain: 'MS Dhoni', venue: 'Chepauk' },

@@ -1,8 +1,39 @@
 import Papa from 'papaparse';
 
+export interface Match {
+    id: number;
+    season: number;
+    city: string;
+    date: string;
+    team1: string;
+    team2: string;
+    tossWinner: string;
+    tossDecision: string;
+    result: string;
+    winner: string;
+    venue: string;
+    playerOfMatch: string;
+}
+
+export interface Delivery {
+    match_id: number;
+    inning: number;
+    batting_team: string;
+    bowling_team: string;
+    over: number;
+    ball: number;
+    batter: string;
+    bowler: string;
+    non_striker: string;
+    batter_runs: number;
+    extra_runs: number;
+    total_runs: number;
+    wicket_label: string;
+}
+
 export interface IPLData {
-    matches: any[];
-    deliveries: any[];
+    matches: Match[];
+    deliveries: Delivery[];
 }
 
 export async function fetchIPLCSV(url: string): Promise<any[]> {
@@ -10,10 +41,10 @@ export async function fetchIPLCSV(url: string): Promise<any[]> {
     if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
 
     // Decompress only if GZIP
-    let stream = response.body;
-    if (url.endsWith(".gz")) {
+    let stream: ReadableStream | null = response.body;
+    if (url.endsWith(".gz") && stream) {
         const ds = new DecompressionStream("gzip");
-        stream = stream?.pipeThrough(ds);
+        stream = stream.pipeThrough(ds);
     }
     const blob = await new Response(stream).blob();
     const csvString = await blob.text();
