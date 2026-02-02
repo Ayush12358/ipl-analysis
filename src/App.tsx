@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Zap, Settings, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Info, AlertCircle, History } from 'lucide-react';
+import { Zap, Settings, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Info, AlertCircle, History, Menu, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -39,6 +39,7 @@ export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [recentChats, setRecentChats] = useState<{ query: string, timestamp: number }[]>([]);
   const [selectedModel, setSelectedModel] = useState(localStorage.getItem('IPL_SELECTED_MODEL') || 'gemma-3-27b-it');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const MODEL_OPTIONS = [
     { value: 'gemma-3-27b-it', label: 'Gemma 3 27B' },
@@ -158,13 +159,29 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-[#020617] text-white overflow-hidden font-sansSelection">
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 glass border-r border-white/5 flex flex-col p-6 gap-8 z-20">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center glow">
-            <Trophy className="w-6 h-6 text-white" />
+      <aside className={`fixed md:relative w-64 h-full glass border-r border-white/5 flex flex-col p-6 gap-8 z-50 transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center glow">
+              <Trophy className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tighter uppercase leading-none">IPL <span className="text-primary italic block text-xs tracking-widest font-black">Strategy Lab</span></h1>
           </div>
-          <h1 className="text-xl font-bold tracking-tighter uppercase leading-none">IPL <span className="text-primary italic block text-xs tracking-widest font-black">Strategy Lab</span></h1>
+          <button
+            className="md:hidden p-2 text-slate-400 hover:text-white"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <nav className="flex flex-col gap-2">
@@ -175,7 +192,7 @@ export default function App() {
           ].map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
               className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id
                 ? 'bg-primary/20 text-white border border-primary/30 shadow-[0_0_20px_rgba(59,130,246,0.15)]'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -245,26 +262,34 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto relative custom-scrollbar bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.05),transparent)]">
         {/* Header */}
-        <header className="sticky top-0 z-50 bg-[#020617]/80 backdrop-blur-md px-8 py-4 flex items-center justify-between border-b border-white/5">
-          <div className="flex items-center gap-4">
-            <Badge variant="outline" className="text-slate-500 border-white/5 bg-white/5 px-4 h-9 font-mono text-[10px] tracking-widest uppercase">
+        <header className="sticky top-0 z-30 bg-[#020617]/80 backdrop-blur-md px-4 md:px-8 py-4 flex items-center justify-between border-b border-white/5">
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <Badge variant="outline" className="hidden md:flex text-slate-500 border-white/5 bg-white/5 px-4 h-9 font-mono text-[10px] tracking-widest uppercase">
               Phase: Investigation
             </Badge>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Button
               variant="outline"
               size="sm"
               onClick={handleToggleData}
               disabled={isLoadingData}
-              className={`rounded-full px-4 border-primary/20 h-9 ${isRealData ? 'bg-primary/20 text-primary font-bold' : 'text-slate-400'}`}
+              className={`hidden md:flex rounded-full px-4 border-primary/20 h-9 ${isRealData ? 'bg-primary/20 text-primary font-bold' : 'text-slate-400'}`}
             >
               {isLoadingData ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Zap className="w-3 h-3 mr-2" />}
               {isRealData ? "DATA: REAL-TIME" : "DATA: STATIC"}
             </Button>
-            <Badge variant="outline" className="text-emerald-500 border-emerald-500/20 bg-emerald-500/5 h-9 flex items-center px-4 font-bold tracking-tight">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
-              {MODEL_OPTIONS.find(m => m.value === selectedModel)?.label || selectedModel}
+            <Badge variant="outline" className="text-emerald-500 border-emerald-500/20 bg-emerald-500/5 h-9 flex items-center px-2 md:px-4 font-bold tracking-tight text-[10px] md:text-xs">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1 md:mr-2 animate-pulse"></span>
+              <span className="hidden md:inline">{MODEL_OPTIONS.find(m => m.value === selectedModel)?.label || selectedModel}</span>
+              <span className="md:hidden">AI</span>
             </Badge>
             <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
               <DialogTrigger asChild>
