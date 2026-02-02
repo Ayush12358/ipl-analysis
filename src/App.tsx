@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Zap, Settings, Search, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Share2, AlertCircle } from 'lucide-react';
+import { Zap, Settings, Trophy, BrainCircuit, Terminal, Sparkles, Loader2, MessageSquare, ListTree, FileText, ChevronDown, ChevronUp, Download, ClipboardCheck, Home as HomeIcon, Info, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 
 // New View Components
 import { HomeView } from './components/HomeView';
-import { WorkflowView } from './components/WorkflowView';
+import { InfoView } from './components/InfoView';
 
 
 
@@ -117,7 +117,7 @@ export default function App() {
           {[
             { id: 'home', icon: HomeIcon, label: 'Home' },
             { id: 'ailab', icon: BrainCircuit, label: 'AI Strategy Lab' },
-            { id: 'workflow', icon: Share2, label: 'AI Workflow' },
+            { id: 'info', icon: Info, label: 'Project Info' },
           ].map((item) => (
             <button
               key={item.id}
@@ -220,15 +220,15 @@ export default function App() {
               </motion.div>
             )}
 
-            {activeTab === 'workflow' && (
+            {activeTab === 'info' && (
               <motion.div
-                key="workflow"
+                key="info"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <WorkflowView />
+                <InfoView />
               </motion.div>
             )}
 
