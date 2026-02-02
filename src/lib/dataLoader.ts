@@ -7,7 +7,13 @@ export interface IPLData {
 
 export async function fetchIPLCSV(url: string): Promise<any[]> {
     const response = await fetch(url);
-    const csvString = await response.text();
+    if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
+
+    // Decompress the GZIP stream on the fly
+    const ds = new DecompressionStream("gzip");
+    const decompressedStream = response.body?.pipeThrough(ds);
+    const blob = await new Response(decompressedStream).blob();
+    const csvString = await blob.text();
 
     return new Promise((resolve, reject) => {
         Papa.parse(csvString, {
