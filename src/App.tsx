@@ -134,10 +134,7 @@ export default function App() {
         </nav>
 
         <div className="mt-auto flex flex-col gap-4">
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/10 border border-white/5">
-            <p className="text-xs text-slate-400 mb-2 uppercase tracking-widest font-bold">Model: Gemma 3-27B</p>
-            <p className="text-sm font-medium mb-3 leading-snug">Autonomous ReAct Agent Active</p>
-          </div>
+
           <div className="flex items-center gap-3 px-2">
             <Avatar className="w-10 h-10 border border-white/10">
               <AvatarImage src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Ayush" />
@@ -146,8 +143,7 @@ export default function App() {
             <div className="flex flex-col">
               <p className="text-sm font-semibold text-white">Ayush</p>
               <div className="flex items-center gap-2">
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Gold Tier</p>
-                <Badge variant="outline" className="px-1 py-0 h-3 border-primary/30 text-[8px] bg-primary/10 text-primary">MASTER</Badge>
+                <Badge variant="outline" className="px-1.5 py-0 h-4 border-primary/30 text-[9px] bg-primary/10 text-primary uppercase font-bold tracking-tighter">Master Analyst</Badge>
               </div>
             </div>
           </div>
@@ -158,20 +154,10 @@ export default function App() {
       <main className="flex-1 overflow-y-auto relative custom-scrollbar bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.05),transparent)]">
         {/* Header */}
         <header className="sticky top-0 z-50 bg-[#020617]/80 backdrop-blur-md px-8 py-4 flex items-center justify-between border-b border-white/5">
-          <div className="flex items-center gap-6">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Talk to the IPL Agent..."
-                className="bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm w-72 focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  if (activeTab !== 'ailab') setActiveTab('ailab');
-                }}
-              />
-            </div>
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="text-slate-500 border-white/5 bg-white/5 px-4 h-9 font-mono text-[10px] tracking-widest uppercase">
+              Phase: Investigation
+            </Badge>
           </div>
           <div className="flex items-center gap-4">
             <Button
