@@ -9,7 +9,7 @@ import { iplDatabase } from './data/database';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 import { initPyodide } from './lib/pyodideExecutor';
-import { runAgentDeepAnalysis, AgentTurn } from './lib/agentOrchestrator';
+import { runAgentDeepAnalysis, AgentTurn, AgentStatus } from './lib/agentOrchestrator';
 import { switchToRealData } from './data/database';
 import { jsPDF } from 'jspdf';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -27,6 +27,7 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [agentTurns, setAgentTurns] = useState<AgentTurn[]>([]);
+  const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null);
   const [agentResult, setAgentResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [showReasoning, setShowReasoning] = useState(true);
@@ -110,12 +111,16 @@ export default function App() {
     setError(null);
     setAgentTurns([]);
     setAgentResult(null);
+    setAgentStatus(null);
 
     try {
       const result = await runAgentDeepAnalysis(query, iplDatabase, (updatedTurns) => {
         setAgentTurns(updatedTurns);
+      }, (status) => {
+        setAgentStatus(status);
       }, apiKey);
       setAgentResult(result);
+      setAgentStatus(null); // Clear status when done
     } catch (err: any) {
       setError(err.message || "The agent encountered an error during analysis.");
     } finally {
@@ -180,7 +185,7 @@ export default function App() {
               <p className="text-sm font-semibold text-white">Ayush</p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="px-1.5 py-0 h-4 border-primary/30 text-[9px] bg-primary/10 text-primary uppercase font-bold tracking-tighter">Master Analyst</Badge>
-                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.5.0</Badge>
+                <Badge variant="outline" className="px-1.5 py-0 h-4 border-white/10 text-[8px] bg-white/5 text-slate-500 font-mono">v0.6.0</Badge>
               </div>
             </div>
           </div>
@@ -307,6 +312,42 @@ export default function App() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Agent Status Progress Bar */}
+                <AnimatePresence>
+                  {isAnalyzing && agentStatus && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="px-1"
+                    >
+                      <Card className="bg-[#020617]/80 border-primary/30 overflow-hidden">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                              <span className="text-sm font-medium text-primary">
+                                [{agentStatus.stepNumber}/{agentStatus.totalSteps}] {agentStatus.description}
+                              </span>
+                            </div>
+                            <Badge variant="outline" className="text-xs border-primary/30 text-primary">
+                              {agentStatus.stage}
+                            </Badge>
+                          </div>
+                          <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+                            <motion.div
+                              className="h-full bg-gradient-to-r from-primary to-purple-500"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(agentStatus.stepNumber / agentStatus.totalSteps) * 100}%` }}
+                              transition={{ duration: 0.3 }}
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left Column: Results & Report */}

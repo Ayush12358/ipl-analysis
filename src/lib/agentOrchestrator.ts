@@ -9,6 +9,13 @@ export interface AgentTurn {
     error?: string;
 }
 
+export interface AgentStatus {
+    stage: string;
+    stepNumber: number;
+    totalSteps: number;
+    description: string;
+}
+
 export interface AgentResult {
     plan?: {
         elaboration: string;
@@ -29,15 +36,23 @@ export async function runAgentDeepAnalysis(
     query: string,
     database: any,
     onUpdate: (turns: AgentTurn[]) => void,
+    onStatus?: (status: AgentStatus) => void,
     userApiKey?: string,
-    retryDepth: number = 0 // Track recursion depth to prevent infinite loops
+    retryDepth: number = 0
 ): Promise<AgentResult> {
     const history: AgentTurn[] = [];
     let currentResult = null;
     let maxTurns = 3;
     let currentTurn = 0;
 
-    // --- STAGE -1: Schema Probe ---
+    const emitStatus = (stage: string, stepNumber: number, description: string) => {
+        if (onStatus) {
+            onStatus({ stage, stepNumber, totalSteps: 6, description });
+        }
+    };
+
+    // --- STAGE 0: Schema Probe ---
+    emitStatus('SCHEMA_PROBE', 1, 'Probing database schema...');
     let schema = { df_matches: [], df_deliveries: [], df_teams: [] };
     try {
         const { getDatabaseSchema } = await import('./pyodideExecutor');
@@ -46,8 +61,8 @@ export async function runAgentDeepAnalysis(
         console.warn("Schema probe failed, using fallback:", e);
     }
 
-    // --- STAGE 0: Planning & Elaboration ---
-    // If this is a retry, log the context
+    // --- STAGE 1: Planning & Elaboration ---
+    emitStatus('PLANNING', 2, 'Planning investigation strategy...');
     if (retryDepth > 0) {
         onUpdate([{
             thought: `Auditor rejected previous attempt. Restarting with enhanced query: "${query}"`,
@@ -61,6 +76,7 @@ export async function runAgentDeepAnalysis(
 
     while (currentTurn < maxTurns) {
         currentTurn++;
+        emitStatus('DISCOVERY', 3, `Discovery Turn ${currentTurn} of ${maxTurns}...`);
 
         // 1. Analyst Agent: Generate Code
         const response = await generateAnalystCode(query, history, schema, userApiKey);
@@ -101,6 +117,7 @@ export async function runAgentDeepAnalysis(
     }
 
     // --- STAGE 2: Synthesis Turn (Consolidate discovery into final data) ---
+    emitStatus('SYNTHESIS', 4, 'Synthesizing results...');
     if (history.length > 0) {
         let synthesisSuccess = false;
         let synthesisAttempts = 0;
@@ -135,9 +152,11 @@ export async function runAgentDeepAnalysis(
     }
 
     // --- STAGE 3: Strategist Agent (Generate Report) ---
+    emitStatus('REPORT', 5, 'Generating strategic report...');
     const reports = await generateStrategistReport(query, history, currentResult, userApiKey);
 
     // --- STAGE 4: Evaluator Agent (Quality Control) ---
+    emitStatus('AUDIT', 6, 'Auditing response quality...');
     const evaluation = await evaluateResponseAdequacy(query, history, reports, userApiKey);
 
     // --- STAGE 5: Recursive Feedback Loop ---
@@ -156,6 +175,7 @@ export async function runAgentDeepAnalysis(
             evaluation.enhancedQuery,
             database,
             onUpdate,
+            onStatus,
             userApiKey,
             retryDepth + 1
         );
