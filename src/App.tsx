@@ -15,7 +15,7 @@ import { jsPDF } from 'jspdf';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 // New View Components
 import { HomeView } from './components/HomeView';
@@ -92,11 +92,6 @@ export default function App() {
   const saveApiKey = (key: string) => {
     setApiKey(key);
     localStorage.setItem("GEMINI_API_KEY", key);
-  };
-
-  const saveModel = (model: string) => {
-    setSelectedModel(model);
-    localStorage.setItem('IPL_SELECTED_MODEL', model);
   };
 
   const handleToggleData = async () => {
@@ -300,21 +295,16 @@ export default function App() {
                     <Label htmlFor="model" className="text-xs font-bold uppercase tracking-widest text-slate-500">
                       AI Model
                     </Label>
-                    <Select value={selectedModel} onValueChange={saveModel}>
-                      <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl">
-                        <SelectValue placeholder="Select model" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#020617] border-white/10">
-                        {MODEL_OPTIONS.map(opt => (
-                          <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-white/10">
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-[10px] text-slate-500">Select the AI model to use for analysis.</p>
+                    <Input
+                      id="model"
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      placeholder="e.g. gemini-2.0-flash, gemma-3-27b-it..."
+                      className="bg-white/5 border-white/10 text-white focus:border-primary h-12 rounded-xl"
+                    />
+                    <p className="text-[10px] text-slate-500">Enter the exact model name (e.g. gemini-2.0-flash, gemma-3-27b-it).</p>
                   </div>
-                  <Button onClick={() => { saveApiKey(apiKey); setIsSettingsOpen(false); }} className="h-12 rounded-xl font-bold uppercase tracking-widest">Update Configuration</Button>
+                  <Button onClick={() => { saveApiKey(apiKey); localStorage.setItem('IPL_SELECTED_MODEL', selectedModel); setIsSettingsOpen(false); }} className="h-12 rounded-xl font-bold uppercase tracking-widest">Update Configuration</Button>
                 </div>
               </DialogContent>
             </Dialog>
