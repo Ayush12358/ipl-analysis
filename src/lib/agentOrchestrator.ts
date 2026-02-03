@@ -177,7 +177,6 @@ export async function runAgentDeepAnalysis(
             database,
             onUpdate,
             onStatus,
-            onStatus,
             userApiKey,
             modelName,
             retryDepth + 1
