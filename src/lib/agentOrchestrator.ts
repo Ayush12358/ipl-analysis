@@ -38,6 +38,7 @@ export async function runAgentDeepAnalysis(
     onUpdate: (turns: AgentTurn[]) => void,
     onStatus?: (status: AgentStatus) => void,
     userApiKey?: string,
+    modelName?: string,
     retryDepth: number = 0
 ): Promise<AgentResult> {
     const history: AgentTurn[] = [];
@@ -72,14 +73,14 @@ export async function runAgentDeepAnalysis(
         }]);
     }
 
-    const plan = await generateInvestigationPlan(query, userApiKey);
+    const plan = await generateInvestigationPlan(query, userApiKey, modelName);
 
     while (currentTurn < maxTurns) {
         currentTurn++;
         emitStatus('DISCOVERY', 3, `Discovery Turn ${currentTurn} of ${maxTurns}...`);
 
         // 1. Analyst Agent: Generate Code
-        const response = await generateAnalystCode(query, history, schema, userApiKey);
+        const response = await generateAnalystCode(query, history, schema, userApiKey, modelName);
 
         const turn: AgentTurn = {
             thought: response.thought,
@@ -124,7 +125,7 @@ export async function runAgentDeepAnalysis(
 
         while (!synthesisSuccess && synthesisAttempts < 2) {
             synthesisAttempts++;
-            const synthesisResponse = await generateSynthesisCode(query, history, schema, userApiKey);
+            const synthesisResponse = await generateSynthesisCode(query, history, schema, userApiKey, modelName);
             if (synthesisResponse.code) {
                 const turn: AgentTurn = {
                     thought: synthesisResponse.thought,
@@ -153,11 +154,11 @@ export async function runAgentDeepAnalysis(
 
     // --- STAGE 3: Strategist Agent (Generate Report) ---
     emitStatus('REPORT', 5, 'Generating strategic report...');
-    const reports = await generateStrategistReport(query, history, currentResult, userApiKey);
+    const reports = await generateStrategistReport(query, history, currentResult, userApiKey, modelName);
 
     // --- STAGE 4: Evaluator Agent (Quality Control) ---
     emitStatus('AUDIT', 6, 'Auditing response quality...');
-    const evaluation = await evaluateResponseAdequacy(query, history, reports, userApiKey);
+    const evaluation = await evaluateResponseAdequacy(query, history, reports, userApiKey, modelName);
 
     // --- STAGE 5: Recursive Feedback Loop ---
     if (!evaluation.isAdequate && evaluation.enhancedQuery && retryDepth < 1) {
@@ -176,7 +177,9 @@ export async function runAgentDeepAnalysis(
             database,
             onUpdate,
             onStatus,
+            onStatus,
             userApiKey,
+            modelName,
             retryDepth + 1
         );
     }

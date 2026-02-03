@@ -6,7 +6,7 @@ function getModel(userKey?: string, modelName?: string) {
   const key = userKey;
   if (!key) throw new Error("API Key is missing. Please configure it in Settings (gear icon).");
   const genAI = new GoogleGenerativeAI(key);
-  return genAI.getGenerativeModel({ model: modelName || "gemma-3-27b-it" });
+  return genAI.getGenerativeModel({ model: modelName || "" });
 }
 
 function extractJson(text: string): any {
@@ -21,8 +21,8 @@ function extractJson(text: string): any {
 }
 
 // --- ARCHITECT AGENT: The Mission Planner ---
-export async function generateInvestigationPlan(query: string, userKey?: string): Promise<any> {
-  const model = getModel(userKey);
+export async function generateInvestigationPlan(query: string, userKey?: string, modelName?: string): Promise<any> {
+  const model = getModel(userKey, modelName);
 
   const prompt = `You are the "Lead Data Architect".
   Your job is to take a user's cricketing query and turn it into a high-level investigation plan.
@@ -49,8 +49,8 @@ export async function generateInvestigationPlan(query: string, userKey?: string)
 }
 
 // --- ANALYST AGENT: The Code Specialist ---
-export async function generateAnalystCode(query: string, history: any[], schema: any, userKey?: string): Promise<any> {
-  const model = getModel(userKey);
+export async function generateAnalystCode(query: string, history: any[], schema: any, userKey?: string, modelName?: string): Promise<any> {
+  const model = getModel(userKey, modelName);
 
   const historyContext = history.map(h => `
   Thought: ${h.thought}
@@ -106,8 +106,8 @@ export async function generateAnalystCode(query: string, history: any[], schema:
 
 
 // --- SYNTHESIS AGENT: The Data Consolidator ---
-export async function generateSynthesisCode(query: string, history: any[], schema: any, userKey?: string): Promise<any> {
-  const model = getModel(userKey);
+export async function generateSynthesisCode(query: string, history: any[], schema: any, userKey?: string, modelName?: string): Promise<any> {
+  const model = getModel(userKey, modelName);
 
   const historyContext = history.map(h => `
   Thought: ${h.thought}
@@ -158,8 +158,8 @@ export async function generateSynthesisCode(query: string, history: any[], schem
 }
 
 // --- STRATEGIST AGENT: The Insight Specialist ---
-export async function generateStrategistReport(query: string, history: any[], finalResult: any, userKey?: string): Promise<any> {
-  const model = getModel(userKey);
+export async function generateStrategistReport(query: string, history: any[], finalResult: any, userKey?: string, modelName?: string): Promise<any> {
+  const model = getModel(userKey, modelName);
 
   const prompt = `You are the "Chief Cricket Strategist".
   Your job is NOT to write code, but to interpret the raw data provided by the Analyst and write a world-class strategic report.
@@ -193,8 +193,8 @@ export async function generateStrategistReport(query: string, history: any[], fi
 }
 
 // --- EVALUATOR AGENT: The Quality Controller ---
-export async function evaluateResponseAdequacy(query: string, history: any[], finalReport: any, userKey?: string): Promise<any> {
-  const model = getModel(userKey);
+export async function evaluateResponseAdequacy(query: string, history: any[], finalReport: any, userKey?: string, modelName?: string): Promise<any> {
+  const model = getModel(userKey, modelName);
 
   const prompt = `You are the "Analytical Auditor".
   Your job is to determine if the AI team has adequately answered the User's query.

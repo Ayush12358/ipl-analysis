@@ -38,15 +38,8 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [recentChats, setRecentChats] = useState<{ query: string, timestamp: number }[]>([]);
-  const [selectedModel, setSelectedModel] = useState(localStorage.getItem('IPL_SELECTED_MODEL') || 'gemma-3-27b-it');
+  const [selectedModel, setSelectedModel] = useState(localStorage.getItem('IPL_SELECTED_MODEL') || "");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const MODEL_OPTIONS = [
-    { value: 'gemma-3-27b-it', label: 'Gemma 3 27B' },
-    { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-    { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
-    { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
-  ];
 
   useEffect(() => {
     // Load recent chats from localStorage
@@ -93,6 +86,11 @@ export default function App() {
   const saveApiKey = (key: string) => {
     setApiKey(key);
     localStorage.setItem("GEMINI_API_KEY", key);
+  };
+
+  const saveModel = (model: string) => {
+    setSelectedModel(model);
+    localStorage.setItem("IPL_SELECTED_MODEL", model);
   };
 
   const handleToggleData = async () => {
@@ -146,7 +144,7 @@ export default function App() {
         setAgentTurns(updatedTurns);
       }, (status) => {
         setAgentStatus(status);
-      }, apiKey);
+      }, apiKey, selectedModel);
       setAgentResult(result);
       setAgentStatus(null);
       saveRecentChat(query); // Save to recent chats
@@ -288,7 +286,7 @@ export default function App() {
             </Button>
             <Badge variant="outline" className="text-emerald-500 border-emerald-500/20 bg-emerald-500/5 h-9 flex items-center px-2 md:px-4 font-bold tracking-tight text-[10px] md:text-xs">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1 md:mr-2 animate-pulse"></span>
-              <span className="hidden md:inline">{MODEL_OPTIONS.find(m => m.value === selectedModel)?.label || selectedModel}</span>
+              <span className="hidden md:inline">{selectedModel}</span>
               <span className="md:hidden">AI</span>
             </Badge>
             <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
@@ -324,14 +322,15 @@ export default function App() {
                     </Label>
                     <Input
                       id="model"
+                      type="text"
                       value={selectedModel}
                       onChange={(e) => setSelectedModel(e.target.value)}
-                      placeholder="e.g. gemini-2.0-flash, gemma-3-27b-it..."
+                      placeholder="e.g. gemini-2.0-flash, gemma-3-27b-it, gemimi-flash-lite-latest, ..."
                       className="bg-white/5 border-white/10 text-white focus:border-primary h-12 rounded-xl"
                     />
-                    <p className="text-[10px] text-slate-500">Enter the exact model name (e.g. gemini-2.0-flash, gemma-3-27b-it).</p>
+                    <p className="text-[10px] text-slate-500">Enter the exact model name (e.g. gemini-2.0-flash, gemma-3-27b-it, gemimi-flash-lite-latest, ...).</p>
                   </div>
-                  <Button onClick={() => { saveApiKey(apiKey); localStorage.setItem('IPL_SELECTED_MODEL', selectedModel); setIsSettingsOpen(false); }} className="h-12 rounded-xl font-bold uppercase tracking-widest">Update Configuration</Button>
+                  <Button onClick={() => { saveApiKey(apiKey); saveModel(selectedModel); setIsSettingsOpen(false); }} className="h-12 rounded-xl font-bold uppercase tracking-widest">Update Configuration</Button>
                 </div>
               </DialogContent>
             </Dialog>
