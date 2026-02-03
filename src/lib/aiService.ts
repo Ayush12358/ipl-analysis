@@ -21,11 +21,26 @@ function extractJson(text: string): any {
 }
 
 // --- ARCHITECT AGENT: The Mission Planner ---
-export async function generateInvestigationPlan(query: string, userKey?: string, modelName?: string): Promise<any> {
+export async function generateInvestigationPlan(query: string, schema: any, userKey?: string, modelName?: string): Promise<any> {
   const model = getModel(userKey, modelName);
 
+  // Extract team names for context
+  const teamNames = schema.df_teams ? schema.df_teams.map((t: any) => t.team1 || t.name || t) : [];
+
   const prompt = `You are the "Lead Data Architect".
-  Your job is to take a user's cricketing query and turn it into a high-level investigation plan.
+  Your job is to take a user's cricketing query and turn it into a high-level investigation plan, while rectifying any errors in the query.
+  
+  CRITICAL: 
+  - Cricket teams in the dataset use SPECIFIC abbreviation/names. 
+  - You MUST rectifiy any team names in the query to match the "Available Teams" list below.
+  - Usage of incorrect names will cause the analysis to FAIL.
+
+  AVAILABLE TEAMS:
+  ${JSON.stringify(teamNames)}
+
+  AVAILABLE DATA SCHEMA:
+  - 'matches': ${JSON.stringify(schema.df_matches)}
+  - 'deliveries': ${JSON.stringify(schema.df_deliveries)}
   
   YOUR TASK:
   1. Elaborate on the query: What are we *really* looking for? (e.g. Strike rate in specific overs, venue bias, etc.)
@@ -49,7 +64,7 @@ export async function generateInvestigationPlan(query: string, userKey?: string,
 }
 
 // --- ANALYST AGENT: The Code Specialist ---
-export async function generateAnalystCode(query: string, history: any[], schema: any, userKey?: string, modelName?: string): Promise<any> {
+export async function generateAnalystCode(query: string, history: any[], schema: any, plan: any, userKey?: string, modelName?: string): Promise<any> {
   const model = getModel(userKey, modelName);
 
   const historyContext = history.map(h => `
@@ -65,6 +80,9 @@ export async function generateAnalystCode(query: string, history: any[], schema:
   - 'matches' DataFrame (df_matches): ${JSON.stringify(schema.df_matches)}
   - 'deliveries' DataFrame (df_deliveries): ${JSON.stringify(schema.df_deliveries)}
   - 'teams' DataFrame (df_teams): ${JSON.stringify(schema.df_teams)}
+
+  MISSION BRIEF (FOLLOW THIS PLAN):
+  ${JSON.stringify(plan, null, 2)}
 
   STRATEGY:
   1. You can execute Python multiple times to "discover" information.
@@ -97,10 +115,15 @@ export async function generateAnalystCode(query: string, history: any[], schema:
   const parsed = extractJson(text);
   if (parsed) return parsed;
 
+  // Fallback: Aggressive cleanup if JSON parsing fails
+  const codeBlock = text.match(/```python([\s\S]*?)```/);
+  const rawCode = codeBlock ? codeBlock[1] : text.replace(/```python/g, "").replace(/```/g, "");
+
   return {
     thought: "Falling back to raw code extraction",
     action: "EXECUTE_PYTHON",
-    code: text.replace(/```python/g, "").replace(/```/g, "").trim()
+    // Remove lines that look like list items or comments but aren't valid python
+    code: rawCode.trim()
   }
 }
 

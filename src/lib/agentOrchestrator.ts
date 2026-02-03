@@ -43,7 +43,6 @@ export async function runAgentDeepAnalysis(
 ): Promise<AgentResult> {
     const history: AgentTurn[] = [];
     let currentResult = null;
-    let maxTurns = 3;
     let currentTurn = 0;
 
     const emitStatus = (stage: string, stepNumber: number, description: string) => {
@@ -73,14 +72,24 @@ export async function runAgentDeepAnalysis(
         }]);
     }
 
-    const plan = await generateInvestigationPlan(query, userApiKey, modelName);
+    const plan = await generateInvestigationPlan(query, schema, userApiKey, modelName);
 
-    while (currentTurn < maxTurns) {
+    let successCount = 0;
+    let consecutiveFailures = 0;
+
+    // Dynamic logic: One success per planned step, minimum 3
+    const planSteps = plan?.steps?.length || 3;
+    const targetSuccesses = Math.max(planSteps, 3);
+
+    const maxRetries = 3;
+    const maxTotalTurns = targetSuccesses * 3; // Allow retries for every step
+
+    while (successCount < targetSuccesses && currentTurn < maxTotalTurns) {
         currentTurn++;
-        emitStatus('DISCOVERY', 3, `Discovery Turn ${currentTurn} of ${maxTurns}...`);
+        emitStatus('DISCOVERY', 3, `Discovery Step ${successCount + 1}/${targetSuccesses} (Attempt ${consecutiveFailures + 1}/${maxRetries})...`);
 
         // 1. Analyst Agent: Generate Code
-        const response = await generateAnalystCode(query, history, schema, userApiKey, modelName);
+        const response = await generateAnalystCode(query, history, schema, plan, userApiKey, modelName);
 
         const turn: AgentTurn = {
             thought: response.thought,
@@ -95,14 +104,31 @@ export async function runAgentDeepAnalysis(
                 const result = await executePython(response.code, database);
                 turn.observation = "Success: " + (result.summary || "Data processed.");
                 currentResult = result;
+
+                // Mark success
+                successCount++;
+                consecutiveFailures = 0; // Reset retry counter on success
+
                 history.push(turn);
                 onUpdate([...history]);
             } catch (err: any) {
                 turn.observation = "Error: " + err.message;
                 turn.error = err.message;
+
+                // Track failure
+                consecutiveFailures++;
+
                 history.push(turn);
                 onUpdate([...history]);
-                // Agent will see this error in History next turn and can fix it
+
+                if (consecutiveFailures >= maxRetries) {
+                    // Failed too many times on this specific step. 
+                    // We treat this as a fatal error for this "run" and stop, 
+                    // or we could just skip to synthesis. 
+                    // Given "maximum 9 runs and least 3 runs" implies tight control, let's break.
+                    turn.observation += " [Max retries reached. Stopping analysis.]";
+                    break;
+                }
             }
         } else if (response.action === 'FINISH') {
             turn.observation = "Analysis Complete.";
